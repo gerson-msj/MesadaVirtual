@@ -1,0 +1,7 @@
+{
+    "deno.enable": true,
+    "deno.disablePaths": [
+        "./web"
+    ],
+    "liveServer.settings.root": "/web/app"
+}
