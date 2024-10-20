@@ -11,5 +11,8 @@ export default class EMailComponent extends BaseComponent<EMailService, EMailVie
     initialize(): void {
         this.initializeService(EMailService);
         this.initializeViewModel(EMailViewModel);
+
+        const titulo = document.querySelector("#titulo") as HTMLElement;
+        console.log(titulo.textContent);
     }
 }

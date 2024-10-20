@@ -1,6 +1,20 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+define("components/header/header.component", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class HeaderComponent extends HTMLElement {
+        titulo;
+        connectedCallback() {
+            const template = document.querySelector(`#headerTemplate`);
+            this.appendChild(template.content.cloneNode(true));
+            this.titulo = document.querySelector("#titulo");
+            this.titulo.textContent = "Mesada Virtual";
+        }
+    }
+    exports.default = HeaderComponent;
+});
 define("services/api.service", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -60,12 +74,16 @@ define("components/base.viewmodel", ["require", "exports"], function (require, e
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class BaseViewModel {
-        shadow;
-        constructor(shadow) {
-            this.shadow = shadow;
-        }
+        // private shadow: ShadowRoot;
+        constructor() { }
+        // constructor(shadow: ShadowRoot) {
+        //     this.shadow = shadow;
+        // }
+        // protected getElement<T>(name: string): T {
+        //     return this.shadow.querySelector(`#${name}`) as T;
+        // }
         getElement(name) {
-            return this.shadow.querySelector(`#${name}`);
+            return document.querySelector(`#${name}`);
         }
     }
     exports.default = BaseViewModel;
@@ -74,58 +92,67 @@ define("components/base.component", ["require", "exports"], function (require, e
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class BaseComponent extends HTMLElement {
-        shadow = this.attachShadow({ mode: "closed" });
+        //private shadow = this.attachShadow({ mode: "closed" });
         _service = null;
         get service() { return this._service; }
         _viewModel = null;
         get viewModel() { return this._viewModel; }
-        modelPath;
-        styles;
+        componentName;
         constructor(componentName) {
             super();
-            this.modelPath = `/components/${componentName}/${componentName}.model.html`;
-            this.styles = [
-                "/styles/dark.css",
-                "/styles/form.css",
-                "/styles/main.css",
-                `/components/${componentName}/${componentName}.style.css`
-            ];
+            // this.modelPath = `/components/${componentName}/${componentName}.model.html`;
+            // this.styles = [
+            //     "/styles/dark.css",
+            //     "/styles/form.css",
+            //     "/styles/main.css",
+            //     `/components/${componentName}/${componentName}.style.css`
+            // ];
+            this.componentName = componentName;
         }
         async connectedCallback() {
             await this.initializeElement();
         }
         async initializeElement() {
-            await Promise.all([
-                this.initializeStyle(),
-                this.initializeModel()
-            ]);
+            this.initializeTemplate();
+            // await Promise.all([
+            //     this.initializeStyle(),
+            //     this.initializeModel()
+            // ]);
             this.initialize();
         }
+        initializeTemplate() {
+            const template = document.querySelector(`#${this.componentName}Template`);
+            this.appendChild(template.content.cloneNode(true));
+        }
         async initializeModel() {
-            const requestModel = await fetch(this.modelPath);
-            const model = await requestModel.text();
-            const modelTemplate = document.createElement("div");
-            modelTemplate.innerHTML = model;
-            const template = modelTemplate.querySelector("template");
-            this.shadow.appendChild(template.content.cloneNode(true));
+            // const requestModel = await fetch(this.modelPath);
+            // const model = await requestModel.text();
+            // const modelTemplate = document.createElement("div");
+            // modelTemplate.innerHTML = model;
+            // const template = modelTemplate.querySelector("template") as HTMLTemplateElement;
+            //this.shadow.appendChild(template.content.cloneNode(true));
         }
-        async initializeStyle() {
-            const requestsStyle = this.styles.map(s => fetch(s));
-            const resultsStyle = await Promise.all(requestsStyle);
-            const requestsText = resultsStyle.map(r => r.text());
-            const resultsText = await Promise.all(requestsText);
-            const requestsSheet = resultsText.map(t => (new CSSStyleSheet()).replace(t));
-            const resultsSheet = await Promise.all(requestsSheet);
-            this.shadow.adoptedStyleSheets = resultsSheet;
-        }
-        getElement(name) {
-            return this.shadow.querySelector(`#${name}`);
-        }
+        // private async initializeStyle() {
+        //     const requestsStyle = this.styles.map(s => fetch(s));
+        //     const resultsStyle = await Promise.all(requestsStyle);
+        //     const requestsText = resultsStyle.map(r => r.text());
+        //     const resultsText = await Promise.all(requestsText);
+        //     const requestsSheet = resultsText.map(t => (new CSSStyleSheet()).replace(t));
+        //     const resultsSheet = await Promise.all(requestsSheet);
+        //     //this.shadow.adoptedStyleSheets = resultsSheet;
+        // }
+        // protected getElement<T>(name: string): T {
+        //     //return this.shadow.querySelector(`#${name}`) as T;
+        //     return this.querySelector(`#${name}`) as T;
+        // }
         initializeService(service) {
             this._service = new service();
         }
+        // protected initializeViewModel(viewModel: new(shadow: ShadowRoot) => TViewModel) {
+        //     this._viewModel = new viewModel(this.shadow);
+        // }
         initializeViewModel(viewModel) {
-            this._viewModel = new viewModel(this.shadow);
+            this._viewModel = new viewModel();
         }
     }
     exports.default = BaseComponent;
@@ -146,8 +173,13 @@ define("components/email/email.viewmodel", ["require", "exports", "components/ba
     Object.defineProperty(exports, "__esModule", { value: true });
     base_viewmodel_1 = __importDefault(base_viewmodel_1);
     class EMailViewModel extends base_viewmodel_1.default {
-        constructor(shadow) {
-            super(shadow);
+        // constructor(shadow: ShadowRoot) {
+        //     super(shadow);
+        // }
+        email;
+        constructor() {
+            super();
+            this.email = this.getElement("email");
         }
     }
     exports.default = EMailViewModel;
@@ -165,19 +197,23 @@ define("components/email/email.component", ["require", "exports", "components/ba
         initialize() {
             this.initializeService(email_service_1.default);
             this.initializeViewModel(email_viewmodel_1.default);
+            const titulo = document.querySelector("#titulo");
+            console.log(titulo.textContent);
         }
     }
     exports.default = EMailComponent;
 });
-define("app", ["require", "exports", "components/email/email.component"], function (require, exports, email_component_1) {
+define("app", ["require", "exports", "components/header/header.component", "components/email/email.component"], function (require, exports, header_component_1, email_component_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.default = main;
+    header_component_1 = __importDefault(header_component_1);
     email_component_1 = __importDefault(email_component_1);
     const mainElement = document.querySelector("main");
     const loadedComponents = [];
     let currentComponent = null;
     function main() {
+        customElements.define("header-component", header_component_1.default);
         nav();
     }
     function nav() {

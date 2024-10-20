@@ -4,20 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mesada Virtual</title>
-    <link rel="stylesheet" href="./styles/layout.css">
-    <link rel="stylesheet" href="./styles/dark.css">
     <link rel="stylesheet" href="./styles/main.css">
     <script src="scripts/require.js"></script>
     <script src="scripts/app.js"></script>
 </head>
 <body>
-    <header></header>
+    <header>
+        <header-component id="header"></header-component>
+    </header>
     
     <main></main>
 
     <footer>
         Mesada Virtual - 2024 - v0.1
     </footer>
+    
+    <template id="headerTemplate">
+        <div>
+            <h1 id="titulo"></h1>
+        </div>
+    </template>
+
+    <template id="emailTemplate">
+        <div>
+            <label for="email">Informe seu e-mail para começar.</label>
+            <input 
+                id="email" 
+                type="email" 
+                autofocus 
+                autocomplete="email" 
+                required
+                maxlength="80" />
+        </div>
+    </template>
 
     <script>
         require(["app"], (module) => module.default());

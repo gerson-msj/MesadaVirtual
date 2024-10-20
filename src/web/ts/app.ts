@@ -1,4 +1,7 @@
+
+import HeaderComponent from "./components/header/header.component";
 import EMailComponent from "./components/email/email.component";
+
 
 const mainElement = document.querySelector("main") as HTMLElement;
 const loadedComponents: string[] = [];
@@ -6,6 +9,7 @@ const loadedComponents: string[] = [];
 let currentComponent: HTMLElement | null = null;
 
 export default function main() {
+    customElements.define("header-component", HeaderComponent);
     nav();
 }
 
