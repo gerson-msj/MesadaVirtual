@@ -1,0 +1,46 @@
+div.field {
+    display: flex;
+    flex-direction: column;
+}
+
+.field label {
+    margin: 10px 0 3px 3px;
+}
+
+.field input, 
+.field select,
+.field textarea {
+    margin: 0 0 0 5px;
+    padding: 3px 5px 3px 5px;
+}
+
+div.btn {
+    display: flex;
+    flex-direction: row;
+}
+
+.btn button {
+    height: fit-content;
+    width: 150px;
+    margin: 15px 0 10px 5px;
+    padding: 5px 10px 3px 10px;
+}
+
+
+
+select {
+    max-width: fit-content;
+}
+
+input {
+    max-width: 100%;
+}
+
+textarea {
+    resize: none;
+    max-width: 100%;
+}
+
+fieldset {
+    margin: 10px 0 10px 0;
+}

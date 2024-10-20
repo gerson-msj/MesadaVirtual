@@ -1,0 +1,63 @@
+/* Estilo para o body, definindo um fundo escuro e texto claro */
+body {
+    background-color: #333;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+/* Estilo para os links */
+a {
+    color: #fff;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #ccc;
+}
+
+/* Estilo para os títulos */
+h1, h2, h3 {
+    color: #eee;
+}
+
+/* Estilo para os parágrafos */
+p {
+    color: #eee;
+}
+
+/* Estilo para os formulários */
+input[type="text"], input[type="email"], input[type="password"], textarea, select {
+    background-color: #444;
+    color: #ddd;
+    border: 1px solid #666;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
+    border: 1px solid #999;
+}
+
+input[type="submit"], button {
+    background-color: #555;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+button:disabled {
+    background-color: #444;
+    color: #bbb;
+    cursor: default;
+}
+
+button:disabled:hover {
+    background-color: #444;
+}
+
+input[type="submit"]:hover, button:hover {
+    background-color: #777;
+}
+
+footer {
+    color: #888;
+}
