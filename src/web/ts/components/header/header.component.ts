@@ -1,12 +1,15 @@
-export default class HeaderComponent extends HTMLElement {
-    
-    private titulo: HTMLHeadElement | undefined;
+import BaseComponent from "../base.component";
+import HeaderService from "./header.service";
+import HeaderViewModel from "./header.viewmodel";
 
-    connectedCallback(){
-        const template = document.querySelector(`#headerTemplate`) as HTMLTemplateElement;
-        this.appendChild(template.content.cloneNode(true));
-        this.titulo = document.querySelector("#titulo") as HTMLElement;
-        this.titulo.textContent = "Mesada Virtual";
+export default class HeaderComponent extends BaseComponent<HeaderService, HeaderViewModel> {
+    
+    constructor() {
+        super("header");
     }
 
+    initialize(): void {
+        this.initializeService(HeaderService);
+        this.initializeViewModel(HeaderViewModel);
+    }
 }
