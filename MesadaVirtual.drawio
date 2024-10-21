@@ -1,0 +1,13 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.8 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.8">
+  <diagram name="Página-1" id="Jkwktxzuz06NS0jhrz9L">
+    <mxGraphModel dx="683" dy="398" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="duUerzS5zog-rnSlP1Dy-1" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Mesada Virtual&lt;/h1&gt;&lt;p&gt;A Mesada Virtual ajuda você a direcionar a evolução financeira dos seus filhos, partindo de uma organização virtual até a mesada real.&lt;/p&gt;&lt;p&gt;Como funciona&lt;/p&gt;&lt;p&gt;De forma simples vocês poderão acompanhar os rendimentos em uma conta virtual, de acordo com o valor da mesada, e também registrar quando os pais decidirem converter o saldo virtual da conta em valores reais.&lt;/p&gt;&lt;p&gt;Quais são as vantagens da Mesada Virtual.&lt;/p&gt;&lt;p&gt;Uma vez que os rendimentos da conta virtual ocorrem de forma automática os pais não precisam lembrar de realizar transferências constantes para seus filhos, e estes poderão acompanhar o rendimento de suas mesadas, e o melhor, aprender a relação entre tempo e dinheiro.&lt;/p&gt;&lt;p&gt;Vale lembrar que a Mesada Virtual é apenas uma ferramenta para gerenciar o rendimento da mesada, e os pais realizam pessoalmente, fora da Mesada Virtual, a entrega dos valores reais aos seus filhos.&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="370" height="470" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
