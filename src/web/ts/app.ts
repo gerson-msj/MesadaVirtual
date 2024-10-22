@@ -1,5 +1,6 @@
 
 import HeaderComponent from "./components/header/header.component";
+import HomeComponent from "./components/home/home.component";
 import EMailComponent from "./components/email/email.component";
 
 
@@ -14,11 +15,15 @@ export default function main() {
 }
 
 function nav() {
-    loadEMail();
+    loadHome();
 }
 
 function loadEMail() {
     const component = loadComponent("email-component", "/", EMailComponent);
+}
+
+function loadHome() {
+    const component = loadComponent("home-component", "/", HomeComponent)
 }
 
 function loadComponent(name: string, url: string, constructor: CustomElementConstructor): HTMLElement {
