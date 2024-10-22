@@ -5,6 +5,7 @@
 		}
 	],
 	"settings": {
-		"liveServer.settings.root": "web/app"
+		"liveServer.settings.root": "web/app",
+		"deno.enable": true
 	}
 }

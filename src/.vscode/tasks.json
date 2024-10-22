@@ -8,11 +8,29 @@
 			"problemMatcher": [
 				"$tsc-watch"
 			],
+			"group": "build",
+			"label": "tsc"
+		},
+		{
+			"type": "deno",
+			"command": "run",
+			"problemMatcher": [
+				"$deno"
+			],
+			"label": "deno: run",
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			},
-			"label": "tsc: watch - web/tsconfig.json"
+			"args": [
+				"-A",
+				"--watch",
+				"--unstable-kv",
+				"main.ts"
+			],
+			"dependsOn":[
+				"tsc"
+			]
 		}
 	]
 }
