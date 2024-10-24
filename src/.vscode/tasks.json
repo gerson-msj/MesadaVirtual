@@ -14,23 +14,29 @@
 		{
 			"type": "deno",
 			"command": "run",
-			"problemMatcher": [
-				"$deno"
-			],
-			"label": "deno: run",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
 			"args": [
 				"-A",
 				"--watch",
 				"--unstable-kv",
 				"main.ts"
 			],
-			"dependsOn":[
-				"tsc"
-			]
+			"problemMatcher": [
+				"$deno"
+			],
+			"label": "deno"
+		},
+		{
+			"label": "Run",
+			"type": "process",
+			"command": "",
+			"dependsOn" : [
+				"tsc", 
+				"deno"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
 		}
 	]
 }

@@ -243,12 +243,12 @@ define("app", ["require", "exports", "components/header/header.component", "comp
         loadHome();
     }
     function loadEMail() {
-        const component = loadComponent("email-component", "/", email_component_1.default);
+        const component = loadComponent("email-component", email_component_1.default);
     }
     function loadHome() {
-        const component = loadComponent("home-component", "/", home_component_1.default);
+        const component = loadComponent("home-component", home_component_1.default);
     }
-    function loadComponent(name, url, constructor) {
+    function loadComponent(name, constructor) {
         if (!loadedComponents.includes(name)) {
             customElements.define(name, constructor);
             loadedComponents.push(name);

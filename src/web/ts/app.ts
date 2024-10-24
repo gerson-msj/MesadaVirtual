@@ -19,14 +19,14 @@ function nav() {
 }
 
 function loadEMail() {
-    const component = loadComponent("email-component", "/", EMailComponent);
+    const component = loadComponent("email-component", EMailComponent);
 }
 
 function loadHome() {
-    const component = loadComponent("home-component", "/", HomeComponent)
+    const component = loadComponent("home-component", HomeComponent)
 }
 
-function loadComponent(name: string, url: string, constructor: CustomElementConstructor): HTMLElement {
+function loadComponent(name: string, constructor: CustomElementConstructor): HTMLElement {
 
     if (!loadedComponents.includes(name)) {
         customElements.define(name, constructor);
