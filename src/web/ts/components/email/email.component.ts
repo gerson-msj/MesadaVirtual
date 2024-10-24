@@ -11,5 +11,8 @@ export default class EMailComponent extends BaseComponent<EMailService, EMailVie
     initialize(): void {
         this.initializeService(EMailService);
         this.initializeViewModel(EMailViewModel);
+
+        this.viewModel.onVoltar = () =>
+            this.dispatchEvent(new Event("voltar"));
     }
 }

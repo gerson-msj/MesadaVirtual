@@ -4,10 +4,15 @@ import BaseViewModel from "../base.viewmodel";
 
 class HomeViewModel extends BaseViewModel {
 
+    private entrar: HTMLButtonElement;
+
+    public onEntrar = () => {};
+
     constructor() {
         super();
+        this.entrar = this.getElement("entrar");
+        this.entrar.addEventListener("click", () => this.onEntrar());
     }
-
 }
 
 class HomeService extends BaseService {
@@ -26,6 +31,8 @@ class HomeComponent extends BaseComponent<HomeService, HomeViewModel> {
     initialize(): void {
         this.initializeViewModel(HomeViewModel);
         this.initializeService(HomeService);
+        this.viewModel.onEntrar = () => 
+            this.dispatchEvent(new Event("entrar"));
     }
 
 }

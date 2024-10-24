@@ -115,6 +115,9 @@ define("components/base.component", ["require", "exports"], function (require, e
         initializeViewModel(viewModel) {
             this._viewModel = new viewModel();
         }
+        dispatch(event, eventName) {
+            event = () => this.dispatchEvent(new Event(eventName));
+        }
     }
     exports.default = BaseComponent;
 });
@@ -164,8 +167,12 @@ define("components/home/home.component", ["require", "exports", "components/base
     base_service_2 = __importDefault(base_service_2);
     base_viewmodel_2 = __importDefault(base_viewmodel_2);
     class HomeViewModel extends base_viewmodel_2.default {
+        entrar;
+        onEntrar = () => { };
         constructor() {
             super();
+            this.entrar = this.getElement("entrar");
+            this.entrar.addEventListener("click", () => this.onEntrar());
         }
     }
     class HomeService extends base_service_2.default {
@@ -180,6 +187,7 @@ define("components/home/home.component", ["require", "exports", "components/base
         initialize() {
             this.initializeViewModel(HomeViewModel);
             this.initializeService(HomeService);
+            this.viewModel.onEntrar = () => this.dispatchEvent(new Event("entrar"));
         }
     }
     exports.default = HomeComponent;
@@ -201,9 +209,16 @@ define("components/email/email.viewmodel", ["require", "exports", "components/ba
     base_viewmodel_3 = __importDefault(base_viewmodel_3);
     class EMailViewModel extends base_viewmodel_3.default {
         email;
+        voltar;
+        onVoltar = () => { };
         constructor() {
             super();
             this.email = this.getElement("email");
+            this.voltar = this.getElement("voltar");
+            this.voltar.addEventListener("click", () => {
+                this.email.value = "";
+                this.onVoltar();
+            });
         }
     }
     exports.default = EMailViewModel;
@@ -221,6 +236,7 @@ define("components/email/email.component", ["require", "exports", "components/ba
         initialize() {
             this.initializeService(email_service_1.default);
             this.initializeViewModel(email_viewmodel_1.default);
+            this.viewModel.onVoltar = () => this.dispatchEvent(new Event("voltar"));
         }
     }
     exports.default = EMailComponent;
@@ -244,9 +260,11 @@ define("app", ["require", "exports", "components/header/header.component", "comp
     }
     function loadEMail() {
         const component = loadComponent("email-component", email_component_1.default);
+        component.addEventListener("voltar", () => loadHome());
     }
     function loadHome() {
         const component = loadComponent("home-component", home_component_1.default);
+        component.addEventListener("entrar", () => loadEMail());
     }
     function loadComponent(name, constructor) {
         if (!loadedComponents.includes(name)) {

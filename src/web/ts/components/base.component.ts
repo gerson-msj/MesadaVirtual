@@ -51,4 +51,8 @@ export default abstract class BaseComponent<TService extends BaseService, TViewM
     protected initializeViewModel(viewModel: new() => TViewModel) {
         this._viewModel = new viewModel();
     }
+
+    protected dispatch(event: () => void, eventName: string){
+        event = () => this.dispatchEvent(new Event(eventName));
+    }
 }

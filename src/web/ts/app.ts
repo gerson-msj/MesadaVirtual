@@ -20,10 +20,12 @@ function nav() {
 
 function loadEMail() {
     const component = loadComponent("email-component", EMailComponent);
+    component.addEventListener("voltar", () => loadHome());
 }
 
 function loadHome() {
-    const component = loadComponent("home-component", HomeComponent)
+    const component = loadComponent("home-component", HomeComponent);
+    component.addEventListener("entrar", () => loadEMail());
 }
 
 function loadComponent(name: string, constructor: CustomElementConstructor): HTMLElement {
