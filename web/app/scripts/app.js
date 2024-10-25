@@ -253,10 +253,18 @@ define("app", ["require", "exports", "components/header/header.component", "comp
     let currentComponent = null;
     function main() {
         customElements.define("header-component", header_component_1.default);
-        nav();
+        load();
     }
-    function nav() {
-        loadHome();
+    function load() {
+        const currentComponentName = localStorage.getItem("currentComponentName");
+        switch (currentComponentName) {
+            case "email-component":
+                loadEMail();
+                break;
+            default:
+                loadHome();
+                break;
+        }
     }
     function loadEMail() {
         const component = loadComponent("email-component", email_component_1.default);
@@ -274,6 +282,7 @@ define("app", ["require", "exports", "components/header/header.component", "comp
         currentComponent?.remove();
         currentComponent = document.createElement(name);
         mainElement.appendChild(currentComponent);
+        localStorage.setItem("currentComponentName", name);
         return currentComponent;
     }
 });

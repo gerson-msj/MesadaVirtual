@@ -11,11 +11,19 @@ let currentComponent: HTMLElement | null = null;
 
 export default function main() {
     customElements.define("header-component", HeaderComponent);
-    nav();
+    load();
 }
 
-function nav() {
-    loadHome();
+function load(){
+    const currentComponentName = localStorage.getItem("currentComponentName");
+    switch (currentComponentName) {
+        case "email-component":
+            loadEMail();
+            break;
+        default:
+            loadHome();
+            break;
+    }
 }
 
 function loadEMail() {
@@ -29,7 +37,7 @@ function loadHome() {
 }
 
 function loadComponent(name: string, constructor: CustomElementConstructor): HTMLElement {
-
+    
     if (!loadedComponents.includes(name)) {
         customElements.define(name, constructor);
         loadedComponents.push(name);
@@ -38,6 +46,8 @@ function loadComponent(name: string, constructor: CustomElementConstructor): HTM
     currentComponent?.remove();
     currentComponent = document.createElement(name);
     mainElement.appendChild(currentComponent);
+
+    localStorage.setItem("currentComponentName", name);
 
     return currentComponent;
 }

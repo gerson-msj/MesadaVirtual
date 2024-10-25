@@ -1,11 +1,10 @@
 {
 	"folders": [
 		{
-			"path": "./src"
+			"path": "."
 		}
 	],
 	"settings": {
-		"liveServer.settings.root": "web/app",
-		"deno.enable": true
+		"liveServer.settings.root": "./web/app"
 	}
 }
