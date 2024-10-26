@@ -192,62 +192,129 @@ define("components/home/home.component", ["require", "exports", "components/base
     }
     exports.default = HomeComponent;
 });
-define("components/email/email.service", ["require", "exports", "components/base.service"], function (require, exports, base_service_3) {
+define("components/email/email.component", ["require", "exports", "components/base.component", "components/base.service", "components/base.viewmodel"], function (require, exports, base_component_3, base_service_3, base_viewmodel_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    base_component_3 = __importDefault(base_component_3);
     base_service_3 = __importDefault(base_service_3);
-    class EMailService extends base_service_3.default {
-        constructor() {
-            super("email");
-        }
-    }
-    exports.default = EMailService;
-});
-define("components/email/email.viewmodel", ["require", "exports", "components/base.viewmodel"], function (require, exports, base_viewmodel_3) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
     base_viewmodel_3 = __importDefault(base_viewmodel_3);
     class EMailViewModel extends base_viewmodel_3.default {
         email;
         voltar;
+        avancar;
         onVoltar = () => { };
+        onAvancar = (email) => { };
         constructor() {
             super();
             this.email = this.getElement("email");
             this.voltar = this.getElement("voltar");
+            this.avancar = this.getElement("avancar");
             this.voltar.addEventListener("click", () => {
                 this.email.value = "";
                 this.onVoltar();
             });
+            this.avancar.addEventListener("click", () => {
+                this.onAvancar(this.email.value);
+            });
         }
     }
-    exports.default = EMailViewModel;
-});
-define("components/email/email.component", ["require", "exports", "components/base.component", "components/email/email.service", "components/email/email.viewmodel"], function (require, exports, base_component_3, email_service_1, email_viewmodel_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    base_component_3 = __importDefault(base_component_3);
-    email_service_1 = __importDefault(email_service_1);
-    email_viewmodel_1 = __importDefault(email_viewmodel_1);
+    class EMailService extends base_service_3.default {
+        constructor() {
+            super("usuario");
+        }
+        async usuarioExistente(email) {
+            const result = await this.api.doGet(new URLSearchParams({ email: email }));
+            return result.usuarioExistente;
+        }
+    }
     class EMailComponent extends base_component_3.default {
         constructor() {
             super("email");
         }
         initialize() {
-            this.initializeService(email_service_1.default);
-            this.initializeViewModel(email_viewmodel_1.default);
+            this.initializeService(EMailService);
+            this.initializeViewModel(EMailViewModel);
             this.viewModel.onVoltar = () => this.dispatchEvent(new Event("voltar"));
+            this.viewModel.onAvancar = async (email) => await this.avancar(email);
+        }
+        async avancar(email) {
+            const usuarioExistente = await this.service.usuarioExistente(email);
+            this.dispatchEvent(new CustomEvent("avancar", { detail: {
+                    email: email,
+                    usuarioExistente: usuarioExistente
+                }
+            }));
         }
     }
     exports.default = EMailComponent;
 });
-define("app", ["require", "exports", "components/header/header.component", "components/home/home.component", "components/email/email.component"], function (require, exports, header_component_1, home_component_1, email_component_1) {
+define("components/cadastro-principal.component", ["require", "exports", "components/base.component", "components/base.service", "components/base.viewmodel"], function (require, exports, base_component_4, base_service_4, base_viewmodel_4) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    base_component_4 = __importDefault(base_component_4);
+    base_service_4 = __importDefault(base_service_4);
+    base_viewmodel_4 = __importDefault(base_viewmodel_4);
+    class CadastroPrincipalViewmodel extends base_viewmodel_4.default {
+        nome;
+        email;
+        senha;
+        voltar;
+        avancar;
+        onVoltar = () => { };
+        onAvancar = (data) => { };
+        constructor() {
+            super();
+            this.nome = this.getElement("nome");
+            this.email = this.getElement("email");
+            this.senha = this.getElement("senha");
+            this.voltar = this.getElement("voltar");
+            this.avancar = this.getElement("avancar");
+            this.voltar.addEventListener("click", () => this.onVoltar());
+            this.avancar.addEventListener("click", () => {
+                const data = {
+                    nome: this.nome.value,
+                    email: this.email.value,
+                    senha: this.senha.value
+                };
+                this.onAvancar(data);
+            });
+        }
+        setEmail(email) {
+            this.email.value = email;
+        }
+    }
+    class CadastroPrincipalService extends base_service_4.default {
+        constructor() {
+            super("usuario");
+        }
+    }
+    class CadastroPrincipalComponent extends base_component_4.default {
+        constructor() {
+            super("cadastro-principal");
+        }
+        initialize() {
+            this.initializeService(CadastroPrincipalService);
+            this.initializeViewModel(CadastroPrincipalViewmodel);
+            this.viewModel.onVoltar = () => this.dispatchEvent(new Event("voltar"));
+            this.viewModel.onAvancar = (data) => this.dispatchEvent(new CustomEvent("avancar", { detail: { data: data } }));
+            this.addEventListener("initializeData", (ev) => {
+                const data = ev.detail;
+                this.viewModel.setEmail(data.email);
+            });
+            this.dispatchEvent(new Event("initialized"));
+        }
+        ;
+    }
+    exports.default = CadastroPrincipalComponent;
+});
+define("app", ["require", "exports", "components/header/header.component", "components/home/home.component", "components/email/email.component", "components/cadastro-principal.component"], function (require, exports, header_component_1, home_component_1, email_component_1, cadastro_principal_component_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.default = main;
     header_component_1 = __importDefault(header_component_1);
     home_component_1 = __importDefault(home_component_1);
     email_component_1 = __importDefault(email_component_1);
+    cadastro_principal_component_1 = __importDefault(cadastro_principal_component_1);
     const mainElement = document.querySelector("main");
     const loadedComponents = [];
     let currentComponent = null;
@@ -269,10 +336,26 @@ define("app", ["require", "exports", "components/header/header.component", "comp
     function loadEMail() {
         const component = loadComponent("email-component", email_component_1.default);
         component.addEventListener("voltar", () => loadHome());
+        component.addEventListener("avancar", (ev) => {
+            const data = ev.detail;
+            if (data.usuarioExistente)
+                console.log(data.email, data.usuarioExistente);
+            else
+                loadCadastroPrincipal(data.email);
+        });
     }
     function loadHome() {
         const component = loadComponent("home-component", home_component_1.default);
         component.addEventListener("entrar", () => loadEMail());
+    }
+    function loadCadastroPrincipal(email) {
+        const component = loadComponent("cadastro-principal-component", cadastro_principal_component_1.default);
+        component.addEventListener("voltar", () => loadEMail());
+        component.addEventListener("avancar", (ev) => {
+            const data = ev.detail;
+            console.log(data);
+        });
+        component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: { email: email } })));
     }
     function loadComponent(name, constructor) {
         if (!loadedComponents.includes(name)) {
@@ -285,5 +368,32 @@ define("app", ["require", "exports", "components/header/header.component", "comp
         localStorage.setItem("currentComponentName", name);
         return currentComponent;
     }
+});
+define("components/base.simple.component", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class BaseSimpleComponent extends HTMLElement {
+        modelPath;
+        constructor(modelName) {
+            super();
+            this.modelPath = `/models/${modelName}.model.html`;
+        }
+        async connectedCallback() {
+            await this.initializeModel();
+            this.initialize();
+        }
+        async initializeModel() {
+            const requestModel = await fetch(this.modelPath);
+            const model = await requestModel.text();
+            const modelTemplate = document.createElement("div");
+            modelTemplate.innerHTML = model;
+            const template = modelTemplate.querySelector("template");
+            this.appendChild(template.content.cloneNode(true));
+        }
+        getElement(name) {
+            return document.querySelector(`#${name}`);
+        }
+    }
+    exports.default = BaseSimpleComponent;
 });
 //# sourceMappingURL=app.js.map

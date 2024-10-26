@@ -2,6 +2,7 @@
 import HeaderComponent from "./components/header/header.component";
 import HomeComponent from "./components/home/home.component";
 import EMailComponent from "./components/email/email.component";
+import CadastroPrincipalComponent from "./components/cadastro-principal.component";
 
 
 const mainElement = document.querySelector("main") as HTMLElement;
@@ -14,7 +15,7 @@ export default function main() {
     load();
 }
 
-function load(){
+function load() {
     const currentComponentName = localStorage.getItem("currentComponentName");
     switch (currentComponentName) {
         case "email-component":
@@ -29,6 +30,13 @@ function load(){
 function loadEMail() {
     const component = loadComponent("email-component", EMailComponent);
     component.addEventListener("voltar", () => loadHome());
+    component.addEventListener("avancar", (ev) => {
+        const data: { email: string, usuarioExistente: boolean } = (ev as CustomEvent).detail;
+        if (data.usuarioExistente)
+            console.log(data.email, data.usuarioExistente);
+        else
+            loadCadastroPrincipal(data.email);
+    });
 }
 
 function loadHome() {
@@ -36,8 +44,20 @@ function loadHome() {
     component.addEventListener("entrar", () => loadEMail());
 }
 
+function loadCadastroPrincipal(email: string) {
+    const component = loadComponent("cadastro-principal-component", CadastroPrincipalComponent);
+    component.addEventListener("voltar", () => loadEMail());
+    component.addEventListener("avancar", (ev) => {
+        const data: { nome: string, email: string, senha: string } = (ev as CustomEvent).detail;
+        console.log(data);
+    });
+    component.addEventListener("initialized", () =>
+        component.dispatchEvent(new CustomEvent("initializeData", { detail: { email: email } }))
+    );
+}
+
 function loadComponent(name: string, constructor: CustomElementConstructor): HTMLElement {
-    
+
     if (!loadedComponents.includes(name)) {
         customElements.define(name, constructor);
         loadedComponents.push(name);

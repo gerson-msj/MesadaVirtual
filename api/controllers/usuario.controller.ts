@@ -14,18 +14,12 @@ export default class UsuarioController extends BaseController {
     }
 
     private async usuarioExistente(context: Context): Promise<Response> {
-
         const kv = await Deno.openKv();
-
         const email = context.url.searchParams.get("email");
-        if (typeof email == 'string') {
-            const data = kv.get<ValueModel>([email])
-            console.log(data);
-        }
-
-        const result: { usuarioExistente: boolean } = { usuarioExistente: false };
+        const data = await kv.get<ValueModel>([email ?? ""]);
+        const usuarioExistente = typeof data.value == 'string';
+        const result: { usuarioExistente: boolean } = { usuarioExistente: usuarioExistente };
         return context.ok(result);
-
     }
 
 }
