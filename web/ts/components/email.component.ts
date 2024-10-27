@@ -1,8 +1,8 @@
-import BaseComponent from "../base.component";
-import BaseService from "../base.service";
-import BaseViewModel from "../base.viewmodel";
+import Component from "./base/component";
+import Service from "./base/service";
+import ViewModel from "./base/viewmodel";
 
-class EMailViewModel extends BaseViewModel {
+class EMailViewModel extends ViewModel {
 
     private email: HTMLInputElement;
     private voltar: HTMLButtonElement;
@@ -29,7 +29,7 @@ class EMailViewModel extends BaseViewModel {
 
 }
 
-class EMailService extends BaseService {
+class EMailService extends Service {
 
     constructor() {
         super("usuario");
@@ -41,7 +41,7 @@ class EMailService extends BaseService {
     }
 }
 
-export default class EMailComponent extends BaseComponent<EMailService, EMailViewModel> {
+export default class EMailComponent extends Component<EMailService, EMailViewModel> {
 
     constructor() {
         super("email");

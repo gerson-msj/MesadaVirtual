@@ -1,7 +1,7 @@
-import BaseService from "./base.service";
-import BaseViewModel from "./base.viewmodel";
+import Service from "./service";
+import ViewModel from "./viewmodel";
 
-export default abstract class BaseComponent<TService extends BaseService, TViewModel extends BaseViewModel> extends HTMLElement {
+export default abstract class Component<TService extends Service, TViewModel extends ViewModel> extends HTMLElement {
 
     private _service: TService | null = null;
     protected get service() { return this._service! }

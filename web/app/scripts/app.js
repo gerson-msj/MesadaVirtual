@@ -35,6 +35,22 @@ define("services/api.service", ["require", "exports"], function (require, export
             const data = await response.json();
             return data;
         }
+        async doPut(obj, bearer = null) {
+            const response = await fetch(this.baseUrl, {
+                method: "PUT",
+                headers: this.getHeaders(bearer),
+                body: JSON.stringify(obj)
+            });
+            if (response.ok) {
+                const data = await response.json();
+                return data;
+            }
+            else {
+                const error = await response.json();
+                console.log("Erro:", error);
+                throw new Error(response.statusText);
+            }
+        }
         getHeaders(bearer) {
             const headers = { "content-type": "application/json; charset=utf-8" };
             if (bearer !== null)
@@ -44,22 +60,22 @@ define("services/api.service", ["require", "exports"], function (require, export
     }
     exports.default = ApiService;
 });
-define("components/base.service", ["require", "exports", "services/api.service"], function (require, exports, api_service_1) {
+define("components/base/service", ["require", "exports", "services/api.service"], function (require, exports, api_service_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     api_service_1 = __importDefault(api_service_1);
-    class BaseService {
+    class Service {
         api;
         constructor(baseUrl) {
             this.api = new api_service_1.default(baseUrl);
         }
     }
-    exports.default = BaseService;
+    exports.default = Service;
 });
-define("components/base.viewmodel", ["require", "exports"], function (require, exports) {
+define("components/base/viewmodel", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class BaseViewModel {
+    class ViewModel {
         // private shadow: ShadowRoot;
         constructor() { }
         // constructor(shadow: ShadowRoot) {
@@ -72,12 +88,12 @@ define("components/base.viewmodel", ["require", "exports"], function (require, e
             return document.querySelector(`#${name}`);
         }
     }
-    exports.default = BaseViewModel;
+    exports.default = ViewModel;
 });
-define("components/base.component", ["require", "exports"], function (require, exports) {
+define("components/base/component", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    class BaseComponent extends HTMLElement {
+    class Component extends HTMLElement {
         _service = null;
         get service() { return this._service; }
         _viewModel = null;
@@ -119,54 +135,42 @@ define("components/base.component", ["require", "exports"], function (require, e
             event = () => this.dispatchEvent(new Event(eventName));
         }
     }
-    exports.default = BaseComponent;
+    exports.default = Component;
 });
-define("components/header/header.service", ["require", "exports", "components/base.service"], function (require, exports, base_service_1) {
+define("components/header.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_1, service_1, viewmodel_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    base_service_1 = __importDefault(base_service_1);
-    class HeaderService extends base_service_1.default {
-        constructor() {
-            super("header");
-        }
-    }
-    exports.default = HeaderService;
-});
-define("components/header/header.viewmodel", ["require", "exports", "components/base.viewmodel"], function (require, exports, base_viewmodel_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    base_viewmodel_1 = __importDefault(base_viewmodel_1);
-    class HeaderViewModel extends base_viewmodel_1.default {
+    component_1 = __importDefault(component_1);
+    service_1 = __importDefault(service_1);
+    viewmodel_1 = __importDefault(viewmodel_1);
+    class HeaderViewModel extends viewmodel_1.default {
         constructor() {
             super();
         }
     }
-    exports.default = HeaderViewModel;
-});
-define("components/header/header.component", ["require", "exports", "components/base.component", "components/header/header.service", "components/header/header.viewmodel"], function (require, exports, base_component_1, header_service_1, header_viewmodel_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    base_component_1 = __importDefault(base_component_1);
-    header_service_1 = __importDefault(header_service_1);
-    header_viewmodel_1 = __importDefault(header_viewmodel_1);
-    class HeaderComponent extends base_component_1.default {
+    class HeaderService extends service_1.default {
+        constructor() {
+            super("header");
+        }
+    }
+    class HeaderComponent extends component_1.default {
         constructor() {
             super("header");
         }
         initialize() {
-            this.initializeService(header_service_1.default);
-            this.initializeViewModel(header_viewmodel_1.default);
+            this.initializeService(HeaderService);
+            this.initializeViewModel(HeaderViewModel);
         }
     }
     exports.default = HeaderComponent;
 });
-define("components/home/home.component", ["require", "exports", "components/base.component", "components/base.service", "components/base.viewmodel"], function (require, exports, base_component_2, base_service_2, base_viewmodel_2) {
+define("components/home.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_2, service_2, viewmodel_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    base_component_2 = __importDefault(base_component_2);
-    base_service_2 = __importDefault(base_service_2);
-    base_viewmodel_2 = __importDefault(base_viewmodel_2);
-    class HomeViewModel extends base_viewmodel_2.default {
+    component_2 = __importDefault(component_2);
+    service_2 = __importDefault(service_2);
+    viewmodel_2 = __importDefault(viewmodel_2);
+    class HomeViewModel extends viewmodel_2.default {
         entrar;
         onEntrar = () => { };
         constructor() {
@@ -175,12 +179,12 @@ define("components/home/home.component", ["require", "exports", "components/base
             this.entrar.addEventListener("click", () => this.onEntrar());
         }
     }
-    class HomeService extends base_service_2.default {
+    class HomeService extends service_2.default {
         constructor() {
             super("home");
         }
     }
-    class HomeComponent extends base_component_2.default {
+    class HomeComponent extends component_2.default {
         constructor() {
             super("home");
         }
@@ -192,13 +196,13 @@ define("components/home/home.component", ["require", "exports", "components/base
     }
     exports.default = HomeComponent;
 });
-define("components/email/email.component", ["require", "exports", "components/base.component", "components/base.service", "components/base.viewmodel"], function (require, exports, base_component_3, base_service_3, base_viewmodel_3) {
+define("components/email.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_3, service_3, viewmodel_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    base_component_3 = __importDefault(base_component_3);
-    base_service_3 = __importDefault(base_service_3);
-    base_viewmodel_3 = __importDefault(base_viewmodel_3);
-    class EMailViewModel extends base_viewmodel_3.default {
+    component_3 = __importDefault(component_3);
+    service_3 = __importDefault(service_3);
+    viewmodel_3 = __importDefault(viewmodel_3);
+    class EMailViewModel extends viewmodel_3.default {
         email;
         voltar;
         avancar;
@@ -218,7 +222,7 @@ define("components/email/email.component", ["require", "exports", "components/ba
             });
         }
     }
-    class EMailService extends base_service_3.default {
+    class EMailService extends service_3.default {
         constructor() {
             super("usuario");
         }
@@ -227,7 +231,7 @@ define("components/email/email.component", ["require", "exports", "components/ba
             return result.usuarioExistente;
         }
     }
-    class EMailComponent extends base_component_3.default {
+    class EMailComponent extends component_3.default {
         constructor() {
             super("email");
         }
@@ -248,13 +252,13 @@ define("components/email/email.component", ["require", "exports", "components/ba
     }
     exports.default = EMailComponent;
 });
-define("components/cadastro-principal.component", ["require", "exports", "components/base.component", "components/base.service", "components/base.viewmodel"], function (require, exports, base_component_4, base_service_4, base_viewmodel_4) {
+define("components/cadastro-principal.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_4, service_4, viewmodel_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    base_component_4 = __importDefault(base_component_4);
-    base_service_4 = __importDefault(base_service_4);
-    base_viewmodel_4 = __importDefault(base_viewmodel_4);
-    class CadastroPrincipalViewmodel extends base_viewmodel_4.default {
+    component_4 = __importDefault(component_4);
+    service_4 = __importDefault(service_4);
+    viewmodel_4 = __importDefault(viewmodel_4);
+    class CadastroPrincipalViewmodel extends viewmodel_4.default {
         nome;
         email;
         senha;
@@ -271,24 +275,26 @@ define("components/cadastro-principal.component", ["require", "exports", "compon
             this.avancar = this.getElement("avancar");
             this.voltar.addEventListener("click", () => this.onVoltar());
             this.avancar.addEventListener("click", () => {
-                const data = {
+                this.onAvancar({
                     nome: this.nome.value,
                     email: this.email.value,
                     senha: this.senha.value
-                };
-                this.onAvancar(data);
+                });
             });
         }
         setEmail(email) {
             this.email.value = email;
         }
     }
-    class CadastroPrincipalService extends base_service_4.default {
+    class CadastroPrincipalService extends service_4.default {
         constructor() {
             super("usuario");
         }
+        concluirCadastro(data) {
+            return this.api.doPut(data);
+        }
     }
-    class CadastroPrincipalComponent extends base_component_4.default {
+    class CadastroPrincipalComponent extends component_4.default {
         constructor() {
             super("cadastro-principal");
         }
@@ -296,7 +302,17 @@ define("components/cadastro-principal.component", ["require", "exports", "compon
             this.initializeService(CadastroPrincipalService);
             this.initializeViewModel(CadastroPrincipalViewmodel);
             this.viewModel.onVoltar = () => this.dispatchEvent(new Event("voltar"));
-            this.viewModel.onAvancar = (data) => this.dispatchEvent(new CustomEvent("avancar", { detail: { data: data } }));
+            this.viewModel.onAvancar = async (data) => {
+                try {
+                    var result = await this.service.concluirCadastro(data);
+                    console.log("Avançar ok", result);
+                    // Obter o token, armazenar e avançar.
+                }
+                catch (error) {
+                    console.log("Erro ao avançar", error);
+                    // apresentar o erro.
+                }
+            };
             this.addEventListener("initializeData", (ev) => {
                 const data = ev.detail;
                 this.viewModel.setEmail(data.email);
@@ -307,7 +323,7 @@ define("components/cadastro-principal.component", ["require", "exports", "compon
     }
     exports.default = CadastroPrincipalComponent;
 });
-define("app", ["require", "exports", "components/header/header.component", "components/home/home.component", "components/email/email.component", "components/cadastro-principal.component"], function (require, exports, header_component_1, home_component_1, email_component_1, cadastro_principal_component_1) {
+define("app", ["require", "exports", "components/header.component", "components/home.component", "components/email.component", "components/cadastro-principal.component"], function (require, exports, header_component_1, home_component_1, email_component_1, cadastro_principal_component_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.default = main;
@@ -368,32 +384,5 @@ define("app", ["require", "exports", "components/header/header.component", "comp
         localStorage.setItem("currentComponentName", name);
         return currentComponent;
     }
-});
-define("components/base.simple.component", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class BaseSimpleComponent extends HTMLElement {
-        modelPath;
-        constructor(modelName) {
-            super();
-            this.modelPath = `/models/${modelName}.model.html`;
-        }
-        async connectedCallback() {
-            await this.initializeModel();
-            this.initialize();
-        }
-        async initializeModel() {
-            const requestModel = await fetch(this.modelPath);
-            const model = await requestModel.text();
-            const modelTemplate = document.createElement("div");
-            modelTemplate.innerHTML = model;
-            const template = modelTemplate.querySelector("template");
-            this.appendChild(template.content.cloneNode(true));
-        }
-        getElement(name) {
-            return document.querySelector(`#${name}`);
-        }
-    }
-    exports.default = BaseSimpleComponent;
 });
 //# sourceMappingURL=app.js.map

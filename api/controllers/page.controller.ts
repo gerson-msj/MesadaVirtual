@@ -1,9 +1,9 @@
 import { serveFile } from "@std/http/file-server";
 import { join } from "@std/path/join";
-import BaseController from "../base.controller.ts";
-import Context from "../context.ts";
+import Controller from "./base/controller.ts";
+import Context from "./base/context.ts";
 
-export default class PageController extends BaseController {
+export default class PageController extends Controller {
 
     private basePath: string | undefined;
 

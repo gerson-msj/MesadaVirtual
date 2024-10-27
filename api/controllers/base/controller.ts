@@ -1,7 +1,7 @@
 import Context from "./context.ts";
 import IController from "./icontroller.ts";
 
-export default abstract class BaseController  {
+export default abstract class Controller  {
   
     private next: IController | null = null;
 

@@ -4,6 +4,6 @@ import type UsuarioModel from "./usuario.model.ts";
 
 export default interface ValueModel {
     usuario: UsuarioModel;
-    mesada: MesadaModel;
-    pagamento: PagamentoModel;
+    mesada: MesadaModel | null;
+    pagamento: PagamentoModel | null;
 }

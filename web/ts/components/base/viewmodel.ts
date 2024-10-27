@@ -1,4 +1,4 @@
-export default abstract class BaseViewModel {
+export default abstract class ViewModel {
 
     // private shadow: ShadowRoot;
     

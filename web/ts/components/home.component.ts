@@ -1,8 +1,8 @@
-import BaseComponent from "../base.component";
-import BaseService from "../base.service";
-import BaseViewModel from "../base.viewmodel";
+import Component from "./base/component";
+import Service from "./base/service";
+import ViewModel from "./base/viewmodel";
 
-class HomeViewModel extends BaseViewModel {
+class HomeViewModel extends ViewModel {
 
     private entrar: HTMLButtonElement;
 
@@ -15,14 +15,14 @@ class HomeViewModel extends BaseViewModel {
     }
 }
 
-class HomeService extends BaseService {
+class HomeService extends Service {
     constructor() {
         super("home");
     }
 }
 
 
-class HomeComponent extends BaseComponent<HomeService, HomeViewModel> {
+class HomeComponent extends Component<HomeService, HomeViewModel> {
 
     constructor() {
         super("home");

@@ -1,4 +1,4 @@
-import ServerCrypt from "./services/server.crypt.ts";
+import ServerCrypt from "../../services/server.crypt.ts";
 
 export default class Context {
 
@@ -27,6 +27,10 @@ export default class Context {
             this._kv = await Deno.openKv();
     }
 
+    public getDb(): Promise<Deno.Kv> {
+        return Deno.openKv();
+    }
+
     public async auth(): Promise<boolean> {
 
         try {
@@ -48,16 +52,19 @@ export default class Context {
 
     }
 
-    public unauthorized(): Response {
-        return new Response(null, { status: 401, headers: { "content-type": "application/json; charset=utf-8" } });
+    public ok<T>(obj: T): Response {
+        return new Response(JSON.stringify(obj), { status: 200, headers: { "content-type": "application/json; charset=utf-8" } });
     }
 
     public badRequest(message: string): Response {
         return new Response(JSON.stringify({ message: message }), { status: 400, headers: { "content-type": "application/json; charset=utf-8" } });
     }
 
-    public ok<T>(obj: T): Response {
-        return new Response(JSON.stringify(obj), { status: 200, headers: { "content-type": "application/json; charset=utf-8" } });
+    public unauthorized(): Response {
+        return new Response(JSON.stringify({ message: "não autorizado" }), { status: 401, headers: { "content-type": "application/json; charset=utf-8" } });
     }
 
+    public notAllowed(): Response {
+        return new Response(JSON.stringify({ message: "método não permitido" }), { status: 405, headers: { "content-type": "application/json; charset=utf-8" } });
+    }
 }

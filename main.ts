@@ -1,5 +1,5 @@
-import BaseController from "./api/base.controller.ts";
-import Context from "./api/context.ts";
+import Controller from "./api/controllers/base/controller.ts";
+import Context from "./api/controllers/base/context.ts";
 import PageController from "./api/controllers/page.controller.ts";
 
 // import CriarController from "./api/controllers/criar.controller.ts";
@@ -7,7 +7,7 @@ import PageController from "./api/controllers/page.controller.ts";
 // import AnotacoesController from "./api/controllers/anotacoes.controller.ts";
 import UsuarioController from "./api/controllers/usuario.controller.ts";
 
-const page = BaseController.createInstance(PageController);
+const page = Controller.createInstance(PageController);
 
 // const handler = async (request: Request): Promise<Response> => {
 const handler = (request: Request): Promise<Response> => {
@@ -22,7 +22,7 @@ const handler = (request: Request): Promise<Response> => {
         // await context.openKv();
         
         const usuario = new UsuarioController();
-        const controllers = BaseController.enlistHandlers(
+        const controllers = Controller.enlistHandlers(
             usuario
         );
 

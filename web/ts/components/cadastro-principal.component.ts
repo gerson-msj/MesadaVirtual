@@ -1,8 +1,14 @@
-import BaseComponent from "./base.component";
-import BaseService from "./base.service";
-import BaseViewModel from "./base.viewmodel";
+import Component from "./base/component";
+import Service from "./base/service";
+import ViewModel from "./base/viewmodel";
 
-class CadastroPrincipalViewmodel extends BaseViewModel {
+interface CadastroPrincipalData {
+    nome: string,
+    email: string,
+    senha: string
+}
+
+class CadastroPrincipalViewmodel extends ViewModel {
 
     private nome: HTMLInputElement;
     private email: HTMLInputElement;
@@ -11,11 +17,7 @@ class CadastroPrincipalViewmodel extends BaseViewModel {
     private avancar: HTMLButtonElement;
 
     public onVoltar = () => { };
-    public onAvancar = (data: {
-        nome: string,
-        email: string,
-        senha: string
-    }) => { };
+    public onAvancar = (data: CadastroPrincipalData) => { };
 
     constructor() {
         super();
@@ -29,13 +31,11 @@ class CadastroPrincipalViewmodel extends BaseViewModel {
         this.voltar.addEventListener("click", () => this.onVoltar());
 
         this.avancar.addEventListener("click", () => {
-            const data = {
+            this.onAvancar({
                 nome: this.nome.value,
                 email: this.email.value,
                 senha: this.senha.value
-            };
-
-            this.onAvancar(data);
+            });
         });
     }
 
@@ -44,15 +44,18 @@ class CadastroPrincipalViewmodel extends BaseViewModel {
     }
 }
 
-class CadastroPrincipalService extends BaseService {
+class CadastroPrincipalService extends Service {
 
     constructor() {
         super("usuario");
+    }
 
+    concluirCadastro(data: CadastroPrincipalData): Promise<{ token: string }> {
+        return this.api.doPut<{ token: string }>(data);
     }
 }
 
-export default class CadastroPrincipalComponent extends BaseComponent<CadastroPrincipalService, CadastroPrincipalViewmodel> {
+export default class CadastroPrincipalComponent extends Component<CadastroPrincipalService, CadastroPrincipalViewmodel> {
 
     constructor() {
         super("cadastro-principal");
@@ -67,14 +70,24 @@ export default class CadastroPrincipalComponent extends BaseComponent<CadastroPr
         this.viewModel.onVoltar = () =>
             this.dispatchEvent(new Event("voltar"));
 
-        this.viewModel.onAvancar = (data) =>
-            this.dispatchEvent(new CustomEvent("avancar", { detail: { data: data } }));
+        this.viewModel.onAvancar = async (data) => {
+            try {
+                var result = await this.service.concluirCadastro(data);
+                console.log("Avançar ok", result);
+                // Obter o token, armazenar e avançar.
+            } catch (error) {
+                console.log("Erro ao avançar", error);
+                // apresentar o erro.
+            }
+        }
 
         this.addEventListener("initializeData", (ev) => {
-            const data: {email: string} = (ev as CustomEvent).detail;
+            const data: { email: string } = (ev as CustomEvent).detail;
             this.viewModel.setEmail(data.email);
         });
 
         this.dispatchEvent(new Event("initialized"));
     };
+
+
 }

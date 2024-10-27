@@ -1,7 +1,7 @@
 
-import HeaderComponent from "./components/header/header.component";
-import HomeComponent from "./components/home/home.component";
-import EMailComponent from "./components/email/email.component";
+import HeaderComponent from "./components/header.component";
+import HomeComponent from "./components/home.component";
+import EMailComponent from "./components/email.component";
 import CadastroPrincipalComponent from "./components/cadastro-principal.component";
 
 
