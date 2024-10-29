@@ -1,13 +1,8 @@
 import Controller from "./base/controller.ts";
 import Context from "./base/context.ts";
-import ValueModel from "../models/value.model.ts";
-import type UsuarioModel from "../models/usuario.model.ts";
-
-interface CadastroPrincipalData {
-    nome: string,
-    email: string,
-    senha: string
-}
+import type { CadastroResponsavelRequestModel } from "../../web/ts/models/request.model.ts";
+import { KeyDep, KeyResp, type ResponsavelDbModel } from "../models/db.model.ts";
+import type { TokenResponseModel, UsuarioExistenteResponseModel } from "../models/response.model.ts";
 
 class UsuarioService {
 
@@ -17,41 +12,37 @@ class UsuarioService {
         this.db = db;
     }
 
-    async usuarioExistente(email: string | null): Promise<{ usuarioExistente: boolean }> {
-        const kv = await this.db!.get<ValueModel>([email ?? ""]);
-        const usuarioExistente = kv.value != null;
-        return { usuarioExistente: usuarioExistente };
+    async usuarioExistente(email: string | null): Promise<UsuarioExistenteResponseModel> {
+
+        const result = await this.db?.getMany([
+            [KeyResp, email ?? ""],
+            [KeyDep, email ?? ""]
+        ]);
+
+        return { usuarioExistente: result?.some(r => r.value != null) ?? false };
     }
 
-    async cadastrarUsuario(data: CadastroPrincipalData): Promise<string | null> {
+    async cadastrarResponsavel(request: CadastroResponsavelRequestModel): Promise<TokenResponseModel> {
 
-        const usuarioExistenteData = await this.usuarioExistente(data.email);
-        console.log("Verificação de usuario existente", data.email, usuarioExistenteData);
-        if (usuarioExistenteData.usuarioExistente)
-            return null;
+        const usuarioExistenteResponse = await this.usuarioExistente(request.email);
+        if (usuarioExistenteResponse.usuarioExistente)
+            return { token: null, message: "O email informado já está cadastrado." };
 
-        const value: ValueModel = {
+        const responsavel: ResponsavelDbModel = {
             usuario: {
-                id: 0,
-                nome: data.nome,
-                senha: data.senha, // bcrypt
-                emailPrincipal: null
+                nome: request.nome,
+                senha: request.senha
             },
-            mesada: null,
-            pagamento: null
+            dependentes: []
         };
 
-        const result = await this.db!.set([data.email], value);
-        if(!result.ok)
-            return null;
+        const result = await this.db!.set([KeyResp, request.email], responsavel);
+        if (!result.ok)
+            return { token: null, message: "Sistema indisponível no momento." };
 
-        console.log("Resultado do cadastro", result);
-        return "Token"; // jwt
+        return { token: "token", message: "Cadastro Ok." };
     }
-
-
-
-
+    
 }
 
 export default class UsuarioController extends Controller {
@@ -68,7 +59,7 @@ export default class UsuarioController extends Controller {
         if (context.url.pathname != "/api/usuario")
             return this.nextHandle(context);
 
-        if (["GET", "PUT"].includes(context.request.method)) {            
+        if (["GET", "PUT"].includes(context.request.method)) {
             const db = await context.getDb();
             this.service.init(db);
         } else {
@@ -77,18 +68,15 @@ export default class UsuarioController extends Controller {
 
         switch (context.request.method) {
             case "GET": {
-                const email = context.url.searchParams.get("email");
-                const result = await this.service.usuarioExistente(email);
-                return context.ok(result);
+                const request = context.url.searchParams.get("email");
+                const response = await this.service.usuarioExistente(request);
+                return context.ok(response);
             }
 
             case "PUT": {
-                const data: CadastroPrincipalData = await context.request.json();
-                const result = await this.service.cadastrarUsuario(data);
-                if (result)
-                    return context.ok({ token: result });
-                else
-                    return context.badRequest("Email informado já cadastrado.");
+                const request: CadastroResponsavelRequestModel = await context.request.json();
+                const response: TokenResponseModel = await this.service.cadastrarResponsavel(request);
+                return context.ok(response);
             }
 
             default: {

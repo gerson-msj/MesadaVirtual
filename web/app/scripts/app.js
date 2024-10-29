@@ -164,13 +164,13 @@ define("components/header.component", ["require", "exports", "components/base/co
     }
     exports.default = HeaderComponent;
 });
-define("components/home.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_2, service_2, viewmodel_2) {
+define("components/index.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_2, service_2, viewmodel_2) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_2 = __importDefault(component_2);
     service_2 = __importDefault(service_2);
     viewmodel_2 = __importDefault(viewmodel_2);
-    class HomeViewModel extends viewmodel_2.default {
+    class IndexViewModel extends viewmodel_2.default {
         entrar;
         onEntrar = () => { };
         constructor() {
@@ -179,22 +179,22 @@ define("components/home.component", ["require", "exports", "components/base/comp
             this.entrar.addEventListener("click", () => this.onEntrar());
         }
     }
-    class HomeService extends service_2.default {
+    class IndexService extends service_2.default {
         constructor() {
-            super("home");
+            super("index");
         }
     }
-    class HomeComponent extends component_2.default {
+    class IndexComponent extends component_2.default {
         constructor() {
-            super("home");
+            super("index");
         }
         initialize() {
-            this.initializeViewModel(HomeViewModel);
-            this.initializeService(HomeService);
+            this.initializeViewModel(IndexViewModel);
+            this.initializeService(IndexService);
             this.viewModel.onEntrar = () => this.dispatchEvent(new Event("entrar"));
         }
     }
-    exports.default = HomeComponent;
+    exports.default = IndexComponent;
 });
 define("components/email.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_3, service_3, viewmodel_3) {
     "use strict";
@@ -252,20 +252,28 @@ define("components/email.component", ["require", "exports", "components/base/com
     }
     exports.default = EMailComponent;
 });
-define("components/cadastro-principal.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_4, service_4, viewmodel_4) {
+define("models/request.model", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+});
+define("models/response.model", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+});
+define("components/cadastro-responsavel.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_4, service_4, viewmodel_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_4 = __importDefault(component_4);
     service_4 = __importDefault(service_4);
     viewmodel_4 = __importDefault(viewmodel_4);
-    class CadastroPrincipalViewmodel extends viewmodel_4.default {
+    class CadastroResponsavelViewmodel extends viewmodel_4.default {
         nome;
         email;
         senha;
         voltar;
         avancar;
         onVoltar = () => { };
-        onAvancar = (data) => { };
+        onAvancar = (request) => { };
         constructor() {
             super();
             this.nome = this.getElement("nome");
@@ -286,26 +294,26 @@ define("components/cadastro-principal.component", ["require", "exports", "compon
             this.email.value = email;
         }
     }
-    class CadastroPrincipalService extends service_4.default {
+    class CadastroResponsavelService extends service_4.default {
         constructor() {
             super("usuario");
         }
-        concluirCadastro(data) {
-            return this.api.doPut(data);
+        cadastrarResponsavel(request) {
+            return this.api.doPut(request);
         }
     }
-    class CadastroPrincipalComponent extends component_4.default {
+    class CadastroResponsavelComponent extends component_4.default {
         constructor() {
-            super("cadastro-principal");
+            super("cadastro-responsavel");
         }
         initialize() {
-            this.initializeService(CadastroPrincipalService);
-            this.initializeViewModel(CadastroPrincipalViewmodel);
+            this.initializeService(CadastroResponsavelService);
+            this.initializeViewModel(CadastroResponsavelViewmodel);
             this.viewModel.onVoltar = () => this.dispatchEvent(new Event("voltar"));
-            this.viewModel.onAvancar = async (data) => {
+            this.viewModel.onAvancar = async (request) => {
                 try {
-                    var result = await this.service.concluirCadastro(data);
-                    console.log("Avançar ok", result);
+                    var result = await this.service.cadastrarResponsavel(request);
+                    console.log("Cadastrar Responsavel result:", result);
                     // Obter o token, armazenar e avançar.
                 }
                 catch (error) {
@@ -321,16 +329,16 @@ define("components/cadastro-principal.component", ["require", "exports", "compon
         }
         ;
     }
-    exports.default = CadastroPrincipalComponent;
+    exports.default = CadastroResponsavelComponent;
 });
-define("app", ["require", "exports", "components/header.component", "components/home.component", "components/email.component", "components/cadastro-principal.component"], function (require, exports, header_component_1, home_component_1, email_component_1, cadastro_principal_component_1) {
+define("app", ["require", "exports", "components/header.component", "components/index.component", "components/email.component", "components/cadastro-responsavel.component"], function (require, exports, header_component_1, index_component_1, email_component_1, cadastro_responsavel_component_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.default = main;
     header_component_1 = __importDefault(header_component_1);
-    home_component_1 = __importDefault(home_component_1);
+    index_component_1 = __importDefault(index_component_1);
     email_component_1 = __importDefault(email_component_1);
-    cadastro_principal_component_1 = __importDefault(cadastro_principal_component_1);
+    cadastro_responsavel_component_1 = __importDefault(cadastro_responsavel_component_1);
     const mainElement = document.querySelector("main");
     const loadedComponents = [];
     let currentComponent = null;
@@ -345,27 +353,27 @@ define("app", ["require", "exports", "components/header.component", "components/
                 loadEMail();
                 break;
             default:
-                loadHome();
+                loadIndex();
                 break;
         }
     }
     function loadEMail() {
         const component = loadComponent("email-component", email_component_1.default);
-        component.addEventListener("voltar", () => loadHome());
+        component.addEventListener("voltar", () => loadIndex());
         component.addEventListener("avancar", (ev) => {
             const data = ev.detail;
             if (data.usuarioExistente)
                 console.log(data.email, data.usuarioExistente);
             else
-                loadCadastroPrincipal(data.email);
+                loadCadastroResponsavel(data.email);
         });
     }
-    function loadHome() {
-        const component = loadComponent("home-component", home_component_1.default);
+    function loadIndex() {
+        const component = loadComponent("index-component", index_component_1.default);
         component.addEventListener("entrar", () => loadEMail());
     }
-    function loadCadastroPrincipal(email) {
-        const component = loadComponent("cadastro-principal-component", cadastro_principal_component_1.default);
+    function loadCadastroResponsavel(email) {
+        const component = loadComponent("cadastro-responsavel-component", cadastro_responsavel_component_1.default);
         component.addEventListener("voltar", () => loadEMail());
         component.addEventListener("avancar", (ev) => {
             const data = ev.detail;

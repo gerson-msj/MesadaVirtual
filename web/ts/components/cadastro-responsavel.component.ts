@@ -1,14 +1,10 @@
+import { CadastroResponsavelRequestModel } from "../models/request.model";
+import { TokenResponseModel } from "../models/response.model";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
 
-interface CadastroPrincipalData {
-    nome: string,
-    email: string,
-    senha: string
-}
-
-class CadastroPrincipalViewmodel extends ViewModel {
+class CadastroResponsavelViewmodel extends ViewModel {
 
     private nome: HTMLInputElement;
     private email: HTMLInputElement;
@@ -17,7 +13,7 @@ class CadastroPrincipalViewmodel extends ViewModel {
     private avancar: HTMLButtonElement;
 
     public onVoltar = () => { };
-    public onAvancar = (data: CadastroPrincipalData) => { };
+    public onAvancar = (request: CadastroResponsavelRequestModel) => { };
 
     constructor() {
         super();
@@ -44,36 +40,36 @@ class CadastroPrincipalViewmodel extends ViewModel {
     }
 }
 
-class CadastroPrincipalService extends Service {
+class CadastroResponsavelService extends Service {
 
     constructor() {
         super("usuario");
     }
 
-    concluirCadastro(data: CadastroPrincipalData): Promise<{ token: string }> {
-        return this.api.doPut<{ token: string }>(data);
+    cadastrarResponsavel(request: CadastroResponsavelRequestModel): Promise<TokenResponseModel> {
+        return this.api.doPut<TokenResponseModel>(request);
     }
 }
 
-export default class CadastroPrincipalComponent extends Component<CadastroPrincipalService, CadastroPrincipalViewmodel> {
+export default class CadastroResponsavelComponent extends Component<CadastroResponsavelService, CadastroResponsavelViewmodel> {
 
     constructor() {
-        super("cadastro-principal");
+        super("cadastro-responsavel");
 
     }
 
     initialize(): void {
 
-        this.initializeService(CadastroPrincipalService);
-        this.initializeViewModel(CadastroPrincipalViewmodel);
+        this.initializeService(CadastroResponsavelService);
+        this.initializeViewModel(CadastroResponsavelViewmodel);
 
         this.viewModel.onVoltar = () =>
             this.dispatchEvent(new Event("voltar"));
 
-        this.viewModel.onAvancar = async (data) => {
+        this.viewModel.onAvancar = async (request) => {
             try {
-                var result = await this.service.concluirCadastro(data);
-                console.log("Avançar ok", result);
+                var result = await this.service.cadastrarResponsavel(request);
+                console.log("Cadastrar Responsavel result:", result);
                 // Obter o token, armazenar e avançar.
             } catch (error) {
                 console.log("Erro ao avançar", error);

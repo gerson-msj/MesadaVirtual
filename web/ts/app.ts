@@ -1,8 +1,8 @@
 
 import HeaderComponent from "./components/header.component";
-import HomeComponent from "./components/home.component";
+import IndexComponent from "./components/index.component";
 import EMailComponent from "./components/email.component";
-import CadastroPrincipalComponent from "./components/cadastro-principal.component";
+import CadastroResponsavelComponent from "./components/cadastro-responsavel.component";
 
 
 const mainElement = document.querySelector("main") as HTMLElement;
@@ -22,30 +22,30 @@ function load() {
             loadEMail();
             break;
         default:
-            loadHome();
+            loadIndex();
             break;
     }
 }
 
 function loadEMail() {
     const component = loadComponent("email-component", EMailComponent);
-    component.addEventListener("voltar", () => loadHome());
+    component.addEventListener("voltar", () => loadIndex());
     component.addEventListener("avancar", (ev) => {
         const data: { email: string, usuarioExistente: boolean } = (ev as CustomEvent).detail;
         if (data.usuarioExistente)
             console.log(data.email, data.usuarioExistente);
         else
-            loadCadastroPrincipal(data.email);
+            loadCadastroResponsavel(data.email);
     });
 }
 
-function loadHome() {
-    const component = loadComponent("home-component", HomeComponent);
+function loadIndex() {
+    const component = loadComponent("index-component", IndexComponent);
     component.addEventListener("entrar", () => loadEMail());
 }
 
-function loadCadastroPrincipal(email: string) {
-    const component = loadComponent("cadastro-principal-component", CadastroPrincipalComponent);
+function loadCadastroResponsavel(email: string) {
+    const component = loadComponent("cadastro-responsavel-component", CadastroResponsavelComponent);
     component.addEventListener("voltar", () => loadEMail());
     component.addEventListener("avancar", (ev) => {
         const data: { nome: string, email: string, senha: string } = (ev as CustomEvent).detail;

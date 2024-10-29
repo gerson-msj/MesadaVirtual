@@ -2,7 +2,7 @@ import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
 
-class HomeViewModel extends ViewModel {
+class IndexViewModel extends ViewModel {
 
     private entrar: HTMLButtonElement;
 
@@ -15,26 +15,26 @@ class HomeViewModel extends ViewModel {
     }
 }
 
-class HomeService extends Service {
+class IndexService extends Service {
     constructor() {
-        super("home");
+        super("index");
     }
 }
 
 
-class HomeComponent extends Component<HomeService, HomeViewModel> {
+class IndexComponent extends Component<IndexService, IndexViewModel> {
 
     constructor() {
-        super("home");
+        super("index");
     }
 
     initialize(): void {
-        this.initializeViewModel(HomeViewModel);
-        this.initializeService(HomeService);
+        this.initializeViewModel(IndexViewModel);
+        this.initializeService(IndexService);
         this.viewModel.onEntrar = () => 
             this.dispatchEvent(new Event("entrar"));
     }
 
 }
 
-export default HomeComponent;
+export default IndexComponent;
