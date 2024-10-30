@@ -3,13 +3,16 @@ import Context from "./base/context.ts";
 import type { CadastroResponsavelRequestModel } from "../../web/ts/models/request.model.ts";
 import { KeyDep, KeyResp, type ResponsavelDbModel } from "../models/db.model.ts";
 import type { TokenResponseModel, UsuarioExistenteResponseModel } from "../models/response.model.ts";
+import ServerCrypt from "../services/server.crypt.ts";
 
 class UsuarioService {
 
     private db: Deno.Kv | undefined;
+    private crypt: ServerCrypt | undefined;
 
     init(db: Deno.Kv) {
         this.db = db;
+        this.crypt = new ServerCrypt();
     }
 
     async usuarioExistente(email: string | null): Promise<UsuarioExistenteResponseModel> {
@@ -28,10 +31,11 @@ class UsuarioService {
         if (usuarioExistenteResponse.usuarioExistente)
             return { token: null, message: "O email informado já está cadastrado." };
 
+        const senha = await this.crypt!.criptografarSenha(request.senha);
         const responsavel: ResponsavelDbModel = {
             usuario: {
                 nome: request.nome,
-                senha: request.senha
+                senha: senha
             },
             dependentes: []
         };
@@ -40,7 +44,9 @@ class UsuarioService {
         if (!result.ok)
             return { token: null, message: "Sistema indisponível no momento." };
 
-        return { token: "token", message: "Cadastro Ok." };
+        const token = await this.crypt!.criarToken(request.email);
+        return { token: token, message: "Cadastro Ok." };
+        
     }
     
 }

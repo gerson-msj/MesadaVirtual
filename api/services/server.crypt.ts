@@ -22,7 +22,7 @@ export default class ServerCrypt {
         return senhaCrypto === senhaCryptoComparacao;
     }
 
-    public async criarToken(nomeHash: string): Promise<string> {
+    public async criarToken(sub: string): Promise<string> {
         const key = await this.getTokenKey();
         
         const header = this.stringToBase64(JSON.stringify({ "alg": "HS256", "typ": "JWT" }));
@@ -31,7 +31,7 @@ export default class ServerCrypt {
         //expTime.setHours(expTime.getHours() + 1);
         expTime.setHours(expTime.getHours() + 10000);
         const exp = Math.floor(expTime.getTime() / 1000);
-        const payload = this.stringToBase64(JSON.stringify({ "sub": nomeHash, "exp": exp }));
+        const payload = this.stringToBase64(JSON.stringify({ "sub": sub, "exp": exp }));
         
         const data = this.encoder.encode(`${header}.${payload}`);
 
