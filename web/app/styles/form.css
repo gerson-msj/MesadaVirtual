@@ -1,46 +1,115 @@
-div.field {
+
+section.form {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 5px 10px 5px;
+}
+
+form {
+    width: 100%;
+    max-width: 600px;
+}
+
+form div {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+form div:last-child {
+    margin-bottom: 0;
+}
+
+form div.field {
     flex-direction: column;
 }
 
-.field label {
-    margin: 10px 0 3px 3px;
-}
-
-.field input, 
-.field select,
-.field textarea {
-    margin: 0 0 0 5px;
-    padding: 3px 5px 3px 5px;
-}
-
-div.btn {
-    display: flex;
+form div.button {
     flex-direction: row;
 }
 
-.btn button {
-    height: fit-content;
-    width: 150px;
-    margin: 15px 0 10px 5px;
-    padding: 5px 10px 3px 10px;
+div.checkboxlist {
+    flex-direction: column;
+    border: 1px solid var(--input-border-color);
+    border-radius: 5px;
+    margin-top: 2px;
 }
 
+.form div.checkboxlist span {
+    padding: 2px;
+    margin-left: 10px;
+}
 
+label {
+    padding-left: 5px;
+    padding-bottom: 2px;
+}
+
+input,
+button,
+select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid var(--input-border-color);
+    font-size: 10pt;
+}
+
+input:invalid {
+    border-color: var(--input-invalid-border-color);
+    background-color: var(--input-invalid-background-color);
+}
+
+button {
+    max-width: 150px;
+    min-width: 100px;
+    margin-right: 10px;
+    border: 1px solid var(--button-background-color);
+    background-color: var(--button-background-color);
+    color: var(--button-text-color);
+    cursor: pointer;
+}
+
+button:disabled {
+    background-color: var(--button-background-color-disabled);
+    cursor: default;
+}
+
+input[type=month],
+input[type=date] {
+    font-size: 10pt;
+    font-family: 'Didact Gothic', sans-serif;
+    width: auto;
+}
 
 select {
-    max-width: fit-content;
+    font-family: 'Didact Gothic', sans-serif;
+    font-size: 10pt;
 }
 
-input {
-    max-width: 100%;
+mark {
+    background-color: white;
+    border: 1px solid;
+    border-radius: 5px;
+    flex-grow: 1;
+    padding: 4px;
+    font-size: 10pt;
 }
 
-textarea {
-    resize: none;
-    max-width: 100%;
+mark.error {
+    border-color: var(--input-invalid-border-color);
 }
 
-fieldset {
-    margin: 10px 0 10px 0;
+mark.info {
+    border-color: var(--info-border-color);
+    background-color: var(--info-background-color);
+    text-align: center;
+}
+
+div.mark {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 600px;
+    padding: 10px 5px 10px 5px;
+
 }

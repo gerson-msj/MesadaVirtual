@@ -1,23 +1,18 @@
 <template>
-    <div>
-        <label for="email">Informe seu e-mail para começar.</label>
-        <input 
-            id="email" 
-            type="email" 
-            autofocus 
-            autocomplete="email" 
-            required
-            maxlength="80" />
-        <hr />
-        <button
-            id="voltar"
-            type="button">
-        Voltar
-        </button>
-        <button
-            id="avancar"
-            type="button">
-        Avançar...
-        </button>
-    </div>
+    <section class="form">
+        <form>
+            <div class="field">
+                <label for="email">Informe seu e-mail para começar.</label>
+                <input id="email" type="email" autofocus autocomplete="email" required maxlength="80" />
+            </div>
+            <div class="button">
+                <button id="voltar" type="button">
+                    Voltar
+                </button>
+                <button id="avancar" type="button">
+                    Avançar...
+                </button>
+            </div>
+        </form>
+    </section>
 </template>
