@@ -268,16 +268,19 @@ define("components/cadastro-responsavel.component", ["require", "exports", "comp
     viewmodel_4 = __importDefault(viewmodel_4);
     class CadastroResponsavelViewmodel extends viewmodel_4.default {
         nome;
-        email;
+        _email;
         senha;
         voltar;
         avancar;
+        get email() { return this._email.value; }
+        ;
+        set email(value) { this._email.value = value; }
         onVoltar = () => { };
         onAvancar = (request) => { };
         constructor() {
             super();
             this.nome = this.getElement("nome");
-            this.email = this.getElement("email");
+            this._email = this.getElement("email");
             this.senha = this.getElement("senha");
             this.voltar = this.getElement("voltar");
             this.avancar = this.getElement("avancar");
@@ -285,13 +288,10 @@ define("components/cadastro-responsavel.component", ["require", "exports", "comp
             this.avancar.addEventListener("click", () => {
                 this.onAvancar({
                     nome: this.nome.value,
-                    email: this.email.value,
+                    email: this._email.value,
                     senha: this.senha.value
                 });
             });
-        }
-        setEmail(email) {
-            this.email.value = email;
         }
     }
     class CadastroResponsavelService extends service_4.default {
@@ -307,6 +307,7 @@ define("components/cadastro-responsavel.component", ["require", "exports", "comp
             super("cadastro-responsavel");
         }
         initialize() {
+            console.log("começou initialize");
             this.initializeService(CadastroResponsavelService);
             this.initializeViewModel(CadastroResponsavelViewmodel);
             this.viewModel.onVoltar = () => this.dispatchEvent(new Event("voltar"));
@@ -323,7 +324,7 @@ define("components/cadastro-responsavel.component", ["require", "exports", "comp
             };
             this.addEventListener("initializeData", (ev) => {
                 const data = ev.detail;
-                this.viewModel.setEmail(data.email);
+                this.viewModel.email = data.email;
             });
             this.dispatchEvent(new Event("initialized"));
         }
@@ -350,6 +351,7 @@ define("app", ["require", "exports", "components/header.component", "components/
         const currentComponentName = localStorage.getItem("currentComponentName");
         switch (currentComponentName) {
             case "email-component":
+            case "cadastro-responsavel-component":
                 loadEMail();
                 break;
             default:
@@ -373,6 +375,7 @@ define("app", ["require", "exports", "components/header.component", "components/
         component.addEventListener("entrar", () => loadEMail());
     }
     function loadCadastroResponsavel(email) {
+        console.log("começou load");
         const component = loadComponent("cadastro-responsavel-component", cadastro_responsavel_component_1.default);
         component.addEventListener("voltar", () => loadEMail());
         component.addEventListener("avancar", (ev) => {
@@ -388,8 +391,8 @@ define("app", ["require", "exports", "components/header.component", "components/
         }
         currentComponent?.remove();
         currentComponent = document.createElement(name);
-        mainElement.appendChild(currentComponent);
         localStorage.setItem("currentComponentName", name);
+        mainElement.appendChild(currentComponent);
         return currentComponent;
     }
 });

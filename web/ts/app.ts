@@ -19,6 +19,7 @@ function load() {
     const currentComponentName = localStorage.getItem("currentComponentName");
     switch (currentComponentName) {
         case "email-component":
+        case "cadastro-responsavel-component":
             loadEMail();
             break;
         default:
@@ -45,6 +46,7 @@ function loadIndex() {
 }
 
 function loadCadastroResponsavel(email: string) {
+    console.log("começou load");
     const component = loadComponent("cadastro-responsavel-component", CadastroResponsavelComponent);
     component.addEventListener("voltar", () => loadEMail());
     component.addEventListener("avancar", (ev) => {
@@ -65,9 +67,7 @@ function loadComponent(name: string, constructor: CustomElementConstructor): HTM
 
     currentComponent?.remove();
     currentComponent = document.createElement(name);
-    mainElement.appendChild(currentComponent);
-
     localStorage.setItem("currentComponentName", name);
-
+    mainElement.appendChild(currentComponent);
     return currentComponent;
 }

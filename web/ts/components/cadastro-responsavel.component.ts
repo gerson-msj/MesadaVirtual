@@ -7,10 +7,13 @@ import ViewModel from "./base/viewmodel";
 class CadastroResponsavelViewmodel extends ViewModel {
 
     private nome: HTMLInputElement;
-    private email: HTMLInputElement;
+    private _email: HTMLInputElement;
     private senha: HTMLInputElement;
     private voltar: HTMLButtonElement;
     private avancar: HTMLButtonElement;
+
+    public get email() { return this._email.value; };
+    public set email(value: string) { this._email.value = value; }
 
     public onVoltar = () => { };
     public onAvancar = (request: CadastroResponsavelRequestModel) => { };
@@ -19,7 +22,7 @@ class CadastroResponsavelViewmodel extends ViewModel {
         super();
 
         this.nome = this.getElement("nome");
-        this.email = this.getElement("email");
+        this._email = this.getElement("email");
         this.senha = this.getElement("senha");
         this.voltar = this.getElement("voltar");
         this.avancar = this.getElement("avancar");
@@ -29,14 +32,10 @@ class CadastroResponsavelViewmodel extends ViewModel {
         this.avancar.addEventListener("click", () => {
             this.onAvancar({
                 nome: this.nome.value,
-                email: this.email.value,
+                email: this._email.value,
                 senha: this.senha.value
             });
         });
-    }
-
-    public setEmail(email: string) {
-        this.email.value = email;
     }
 }
 
@@ -59,7 +58,7 @@ export default class CadastroResponsavelComponent extends Component<CadastroResp
     }
 
     initialize(): void {
-
+        console.log("começou initialize");
         this.initializeService(CadastroResponsavelService);
         this.initializeViewModel(CadastroResponsavelViewmodel);
 
@@ -79,7 +78,7 @@ export default class CadastroResponsavelComponent extends Component<CadastroResp
 
         this.addEventListener("initializeData", (ev) => {
             const data: { email: string } = (ev as CustomEvent).detail;
-            this.viewModel.setEmail(data.email);
+            this.viewModel.email = data.email;
         });
 
         this.dispatchEvent(new Event("initialized"));
