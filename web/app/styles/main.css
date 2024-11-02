@@ -1,6 +1,15 @@
-@import url("./dark.css");
-@import url("./layout.css");
-@import url("./form.css");
+@import "./dark.css";
+@import "./layout.css";
+@import "./form.css";
+@import "./fonts.css";
+
+:root {
+    --color-btn: rgb(50, 50, 100);
+
+    --base-font-image-size: 28px;
+
+    --input-invalid-border-color: #ce6262;
+}
 
 .oculto {
     display: none;

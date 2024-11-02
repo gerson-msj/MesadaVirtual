@@ -1,8 +1,4 @@
 
-:root {
-    --input-invalid-border-color: #ce6262;
-}
-
 /* Estilo para o body, definindo um fundo escuro e texto claro */
 body {
     background-color: #333;

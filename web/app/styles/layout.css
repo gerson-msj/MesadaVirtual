@@ -17,24 +17,39 @@ body {
     gap: 0;
 }
 
+/* Header */
 header {
     padding: 10px;
 }
 
-section.header {
+header section.header {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    padding: 0 5px;
     height: 100%;
-    padding: 10px 5px 10px 5px;
 }
 
-section.header div {
+header .header-container {
+    display: grid;
+    grid-template-columns: 50px auto 50px;
+    gap: 0;
+    align-items: center;
+
     width: 100%;
     max-width: 600px;
-    padding: 5px;
+    
+    height: 100%;
 }
+
+
+
+
+
+
+
+/* Header */
+/* Main */
 
 main {
     padding: 10px;
@@ -45,7 +60,7 @@ section.form {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px 5px 10px 5px;
+    padding: 10px 5px;
 }
 
 section.main div,
