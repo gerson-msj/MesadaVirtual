@@ -16,21 +16,18 @@ class IndexViewModel extends ViewModel {
 }
 
 class IndexService extends Service {
-    constructor() {
-        super("index");
-    }
+    
 }
 
 
-class IndexComponent extends Component<IndexService, IndexViewModel> {
+class IndexComponent extends Component<IndexViewModel, IndexService> {
 
     constructor() {
         super("index");
     }
 
     initialize(): void {
-        this.initializeViewModel(IndexViewModel);
-        this.initializeService(IndexService);
+        this.initializeResources(IndexViewModel, IndexService);
         this.viewModel.onEntrar = () => 
             this.dispatchEvent(new Event("entrar"));
     }

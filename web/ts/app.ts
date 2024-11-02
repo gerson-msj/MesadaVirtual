@@ -3,6 +3,7 @@ import HeaderComponent from "./components/header.component";
 import IndexComponent from "./components/index.component";
 import EMailComponent from "./components/email.component";
 import CadastroResponsavelComponent from "./components/cadastro-responsavel.component";
+import HomeComponent from "./components/home.component";
 
 
 const mainElement = document.querySelector("main") as HTMLElement;
@@ -46,16 +47,17 @@ function loadIndex() {
 }
 
 function loadCadastroResponsavel(email: string) {
-    console.log("começou load");
     const component = loadComponent("cadastro-responsavel-component", CadastroResponsavelComponent);
     component.addEventListener("voltar", () => loadEMail());
-    component.addEventListener("avancar", (ev) => {
-        const data: { nome: string, email: string, senha: string } = (ev as CustomEvent).detail;
-        console.log(data);
-    });
+    component.addEventListener("avancar", () => LoadHome());
+    
     component.addEventListener("initialized", () =>
         component.dispatchEvent(new CustomEvent("initializeData", { detail: { email: email } }))
     );
+}
+
+function LoadHome() {
+    const component = loadComponent("home-component", HomeComponent);
 }
 
 function loadComponent(name: string, constructor: CustomElementConstructor): HTMLElement {

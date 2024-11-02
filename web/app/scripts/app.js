@@ -1,6 +1,121 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+define("components/base/service", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Service {
+        constructor() { }
+    }
+    exports.default = Service;
+});
+define("components/base/viewmodel", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class ViewModel {
+        constructor() { }
+        getElement(name) {
+            return document.querySelector(`#${name}`);
+        }
+    }
+    exports.default = ViewModel;
+});
+define("components/base/component", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    class Component extends HTMLElement {
+        _service = null;
+        get service() { return this._service; }
+        _viewModel = null;
+        get viewModel() { return this._viewModel; }
+        modelPath;
+        constructor(modelName) {
+            super();
+            this.modelPath = `/models/${modelName}.model.html`;
+        }
+        async connectedCallback() {
+            await this.initializeElement();
+        }
+        async initializeElement() {
+            await this.initializeModel();
+            this.initialize();
+        }
+        async initializeModel() {
+            const requestModel = await fetch(this.modelPath);
+            const model = await requestModel.text();
+            const modelTemplate = document.createElement("div");
+            modelTemplate.innerHTML = model;
+            const template = modelTemplate.querySelector("template");
+            this.appendChild(template.content.cloneNode(true));
+        }
+        // protected getElement<T>(name: string): T {
+        //     //return this.shadow.querySelector(`#${name}`) as T;
+        //     return this.querySelector(`#${name}`) as T;
+        // }
+        initializeResources(viewModel, service) {
+            this._service = new service();
+            this._viewModel = new viewModel();
+        }
+        dispatch(event, eventName) {
+            event = () => this.dispatchEvent(new Event(eventName));
+        }
+    }
+    exports.default = Component;
+});
+define("components/header.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_1, service_1, viewmodel_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    component_1 = __importDefault(component_1);
+    service_1 = __importDefault(service_1);
+    viewmodel_1 = __importDefault(viewmodel_1);
+    class HeaderViewModel extends viewmodel_1.default {
+        constructor() {
+            super();
+        }
+    }
+    class HeaderService extends service_1.default {
+        constructor() {
+            super();
+        }
+    }
+    class HeaderComponent extends component_1.default {
+        constructor() {
+            super("header");
+        }
+        initialize() {
+            this.initializeResources(HeaderViewModel, HeaderService);
+        }
+    }
+    exports.default = HeaderComponent;
+});
+define("components/index.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_2, service_2, viewmodel_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    component_2 = __importDefault(component_2);
+    service_2 = __importDefault(service_2);
+    viewmodel_2 = __importDefault(viewmodel_2);
+    class IndexViewModel extends viewmodel_2.default {
+        entrar;
+        onEntrar = () => { };
+        constructor() {
+            super();
+            this.entrar = this.getElement("entrar");
+            this.entrar.addEventListener("click", () => this.onEntrar());
+        }
+    }
+    class IndexService extends service_2.default {
+    }
+    class IndexComponent extends component_2.default {
+        constructor() {
+            super("index");
+        }
+        initialize() {
+            this.initializeResources(IndexViewModel, IndexService);
+            this.viewModel.onEntrar = () => this.dispatchEvent(new Event("entrar"));
+        }
+    }
+    exports.default = IndexComponent;
+});
 define("services/api.service", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -60,145 +175,10 @@ define("services/api.service", ["require", "exports"], function (require, export
     }
     exports.default = ApiService;
 });
-define("components/base/service", ["require", "exports", "services/api.service"], function (require, exports, api_service_1) {
+define("components/email.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, api_service_1, component_3, service_3, viewmodel_3) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     api_service_1 = __importDefault(api_service_1);
-    class Service {
-        api;
-        constructor(baseUrl) {
-            this.api = new api_service_1.default(baseUrl);
-        }
-    }
-    exports.default = Service;
-});
-define("components/base/viewmodel", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class ViewModel {
-        // private shadow: ShadowRoot;
-        constructor() { }
-        // constructor(shadow: ShadowRoot) {
-        //     this.shadow = shadow;
-        // }
-        // protected getElement<T>(name: string): T {
-        //     return this.shadow.querySelector(`#${name}`) as T;
-        // }
-        getElement(name) {
-            return document.querySelector(`#${name}`);
-        }
-    }
-    exports.default = ViewModel;
-});
-define("components/base/component", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class Component extends HTMLElement {
-        _service = null;
-        get service() { return this._service; }
-        _viewModel = null;
-        get viewModel() { return this._viewModel; }
-        modelPath;
-        constructor(modelName) {
-            super();
-            this.modelPath = `/models/${modelName}.model.html`;
-        }
-        async connectedCallback() {
-            await this.initializeElement();
-        }
-        async initializeElement() {
-            await this.initializeModel();
-            this.initialize();
-        }
-        async initializeModel() {
-            const requestModel = await fetch(this.modelPath);
-            const model = await requestModel.text();
-            const modelTemplate = document.createElement("div");
-            modelTemplate.innerHTML = model;
-            const template = modelTemplate.querySelector("template");
-            this.appendChild(template.content.cloneNode(true));
-        }
-        // protected getElement<T>(name: string): T {
-        //     //return this.shadow.querySelector(`#${name}`) as T;
-        //     return this.querySelector(`#${name}`) as T;
-        // }
-        initializeService(service) {
-            this._service = new service();
-        }
-        // protected initializeViewModel(viewModel: new(shadow: ShadowRoot) => TViewModel) {
-        //     this._viewModel = new viewModel(this.shadow);
-        // }
-        initializeViewModel(viewModel) {
-            this._viewModel = new viewModel();
-        }
-        dispatch(event, eventName) {
-            event = () => this.dispatchEvent(new Event(eventName));
-        }
-    }
-    exports.default = Component;
-});
-define("components/header.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_1, service_1, viewmodel_1) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    component_1 = __importDefault(component_1);
-    service_1 = __importDefault(service_1);
-    viewmodel_1 = __importDefault(viewmodel_1);
-    class HeaderViewModel extends viewmodel_1.default {
-        constructor() {
-            super();
-        }
-    }
-    class HeaderService extends service_1.default {
-        constructor() {
-            super("header");
-        }
-    }
-    class HeaderComponent extends component_1.default {
-        constructor() {
-            super("header");
-        }
-        initialize() {
-            this.initializeService(HeaderService);
-            this.initializeViewModel(HeaderViewModel);
-        }
-    }
-    exports.default = HeaderComponent;
-});
-define("components/index.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_2, service_2, viewmodel_2) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    component_2 = __importDefault(component_2);
-    service_2 = __importDefault(service_2);
-    viewmodel_2 = __importDefault(viewmodel_2);
-    class IndexViewModel extends viewmodel_2.default {
-        entrar;
-        onEntrar = () => { };
-        constructor() {
-            super();
-            this.entrar = this.getElement("entrar");
-            this.entrar.addEventListener("click", () => this.onEntrar());
-        }
-    }
-    class IndexService extends service_2.default {
-        constructor() {
-            super("index");
-        }
-    }
-    class IndexComponent extends component_2.default {
-        constructor() {
-            super("index");
-        }
-        initialize() {
-            this.initializeViewModel(IndexViewModel);
-            this.initializeService(IndexService);
-            this.viewModel.onEntrar = () => this.dispatchEvent(new Event("entrar"));
-        }
-    }
-    exports.default = IndexComponent;
-});
-define("components/email.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_3, service_3, viewmodel_3) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
     component_3 = __importDefault(component_3);
     service_3 = __importDefault(service_3);
     viewmodel_3 = __importDefault(viewmodel_3);
@@ -223,11 +203,13 @@ define("components/email.component", ["require", "exports", "components/base/com
         }
     }
     class EMailService extends service_3.default {
+        apiUsuario;
         constructor() {
-            super("usuario");
+            super();
+            this.apiUsuario = new api_service_1.default("usuario");
         }
         async usuarioExistente(email) {
-            const result = await this.api.doGet(new URLSearchParams({ email: email }));
+            const result = await this.apiUsuario.doGet(new URLSearchParams({ email: email }));
             return result.usuarioExistente;
         }
     }
@@ -236,8 +218,7 @@ define("components/email.component", ["require", "exports", "components/base/com
             super("email");
         }
         initialize() {
-            this.initializeService(EMailService);
-            this.initializeViewModel(EMailViewModel);
+            this.initializeResources(EMailViewModel, EMailService);
             this.viewModel.onVoltar = () => this.dispatchEvent(new Event("voltar"));
             this.viewModel.onAvancar = async (email) => await this.avancar(email);
         }
@@ -260,9 +241,10 @@ define("models/response.model", ["require", "exports"], function (require, expor
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
 });
-define("components/cadastro-responsavel.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_4, service_4, viewmodel_4) {
+define("components/cadastro-responsavel.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, api_service_2, component_4, service_4, viewmodel_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    api_service_2 = __importDefault(api_service_2);
     component_4 = __importDefault(component_4);
     service_4 = __importDefault(service_4);
     viewmodel_4 = __importDefault(viewmodel_4);
@@ -272,6 +254,7 @@ define("components/cadastro-responsavel.component", ["require", "exports", "comp
         senha;
         voltar;
         avancar;
+        result;
         get email() { return this._email.value; }
         ;
         set email(value) { this._email.value = value; }
@@ -284,6 +267,7 @@ define("components/cadastro-responsavel.component", ["require", "exports", "comp
             this.senha = this.getElement("senha");
             this.voltar = this.getElement("voltar");
             this.avancar = this.getElement("avancar");
+            this.result = this.getElement("result");
             this.voltar.addEventListener("click", () => this.onVoltar());
             this.avancar.addEventListener("click", () => {
                 this.onAvancar({
@@ -293,13 +277,24 @@ define("components/cadastro-responsavel.component", ["require", "exports", "comp
                 });
             });
         }
+        ocultarResult() {
+            if (!this.result.classList.contains("oculto"))
+                this.result.classList.add("ocultar");
+        }
+        apresentarResult(message) {
+            this.result.innerText = message;
+            if (this.result.classList.contains("oculto"))
+                this.result.classList.remove("oculto");
+        }
     }
     class CadastroResponsavelService extends service_4.default {
+        apiUsuario;
         constructor() {
-            super("usuario");
+            super();
+            this.apiUsuario = new api_service_2.default("usuario");
         }
         cadastrarResponsavel(request) {
-            return this.api.doPut(request);
+            return this.apiUsuario.doPut(request);
         }
     }
     class CadastroResponsavelComponent extends component_4.default {
@@ -307,19 +302,23 @@ define("components/cadastro-responsavel.component", ["require", "exports", "comp
             super("cadastro-responsavel");
         }
         initialize() {
-            console.log("começou initialize");
-            this.initializeService(CadastroResponsavelService);
-            this.initializeViewModel(CadastroResponsavelViewmodel);
+            this.initializeResources(CadastroResponsavelViewmodel, CadastroResponsavelService);
+            this.viewModel.ocultarResult();
             this.viewModel.onVoltar = () => this.dispatchEvent(new Event("voltar"));
             this.viewModel.onAvancar = async (request) => {
                 try {
-                    var result = await this.service.cadastrarResponsavel(request);
-                    console.log("Cadastrar Responsavel result:", result);
-                    // Obter o token, armazenar e avançar.
+                    var tokenResp = await this.service.cadastrarResponsavel(request);
+                    if (tokenResp.token != null) {
+                        localStorage.setItem("token", tokenResp.token);
+                        this.dispatchEvent(new Event("avancar"));
+                    }
+                    else {
+                        throw new Error(tokenResp.message ?? "Algo deu errado! (⊙_◎)");
+                    }
                 }
                 catch (error) {
-                    console.log("Erro ao avançar", error);
-                    // apresentar o erro.
+                    console.error("cadastro-responsavel.component onAvancar ", error);
+                    this.viewModel.apresentarResult("Algo deu errado! (⊙_◎)");
                 }
             };
             this.addEventListener("initializeData", (ev) => {
@@ -332,7 +331,27 @@ define("components/cadastro-responsavel.component", ["require", "exports", "comp
     }
     exports.default = CadastroResponsavelComponent;
 });
-define("app", ["require", "exports", "components/header.component", "components/index.component", "components/email.component", "components/cadastro-responsavel.component"], function (require, exports, header_component_1, index_component_1, email_component_1, cadastro_responsavel_component_1) {
+define("components/home.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_5, service_5, viewmodel_5) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    component_5 = __importDefault(component_5);
+    service_5 = __importDefault(service_5);
+    viewmodel_5 = __importDefault(viewmodel_5);
+    class HomeViewModel extends viewmodel_5.default {
+    }
+    class HomeService extends service_5.default {
+    }
+    class HomeComponent extends component_5.default {
+        constructor() {
+            super("home");
+        }
+        initialize() {
+            this.initializeResources(HomeViewModel, HomeService);
+        }
+    }
+    exports.default = HomeComponent;
+});
+define("app", ["require", "exports", "components/header.component", "components/index.component", "components/email.component", "components/cadastro-responsavel.component", "components/home.component"], function (require, exports, header_component_1, index_component_1, email_component_1, cadastro_responsavel_component_1, home_component_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.default = main;
@@ -340,6 +359,7 @@ define("app", ["require", "exports", "components/header.component", "components/
     index_component_1 = __importDefault(index_component_1);
     email_component_1 = __importDefault(email_component_1);
     cadastro_responsavel_component_1 = __importDefault(cadastro_responsavel_component_1);
+    home_component_1 = __importDefault(home_component_1);
     const mainElement = document.querySelector("main");
     const loadedComponents = [];
     let currentComponent = null;
@@ -375,14 +395,13 @@ define("app", ["require", "exports", "components/header.component", "components/
         component.addEventListener("entrar", () => loadEMail());
     }
     function loadCadastroResponsavel(email) {
-        console.log("começou load");
         const component = loadComponent("cadastro-responsavel-component", cadastro_responsavel_component_1.default);
         component.addEventListener("voltar", () => loadEMail());
-        component.addEventListener("avancar", (ev) => {
-            const data = ev.detail;
-            console.log(data);
-        });
+        component.addEventListener("avancar", () => LoadHome());
         component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: { email: email } })));
+    }
+    function LoadHome() {
+        const component = loadComponent("home-component", home_component_1.default);
     }
     function loadComponent(name, constructor) {
         if (!loadedComponents.includes(name)) {
@@ -395,5 +414,22 @@ define("app", ["require", "exports", "components/header.component", "components/
         mainElement.appendChild(currentComponent);
         return currentComponent;
     }
+});
+define("components/login.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_6, service_6, viewmodel_6) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    component_6 = __importDefault(component_6);
+    service_6 = __importDefault(service_6);
+    viewmodel_6 = __importDefault(viewmodel_6);
+    class LoginViewModel extends viewmodel_6.default {
+    }
+    class LoginService extends service_6.default {
+    }
+    class LoginComponent extends component_6.default {
+        initialize() {
+            this.initializeResources(LoginViewModel, LoginService);
+        }
+    }
+    exports.default = LoginComponent;
 });
 //# sourceMappingURL=app.js.map

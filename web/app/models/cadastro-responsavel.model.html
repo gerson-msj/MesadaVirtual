@@ -1,18 +1,24 @@
 <template>
     <h2>Novo Cadastro</h2>
-    <form autocomplete="off">
-        <div>
-            <label for="nome">Nome</label>
-            <input id="nome" type="text">
-        </div>
-        <div>
-            <input id="email" name="username" type="text">
-            <label for="senha">Senha</label>
-            <input id="senha" name="password" type="password">
-        </div>
-        <div>
-            <button id="voltar" type="button">Voltar</button>
-            <button id="avancar" type="button">Avançar...</button>
-        </div>
-    </form>
+    <section class="form">
+        <form autocomplete="off">
+            <div class="field">
+                <label for="email">E-mail</label>
+                <input id="email" autocomplete="username" type="email" disabled>
+            </div>            
+            <div class="field">
+                <label for="nome">Nome</label>
+                <input id="nome" type="text">
+            </div>
+            <div class="field">
+                <label for="senha">Senha</label>
+                <input id="senha" autocomplete="new-password" name="password" type="password">
+            </div>
+            <div class="button">
+                <button id="voltar" type="button">Voltar</button>
+                <button id="avancar" type="button">Avançar...</button>
+                <mark id="result" class="error oculto">Teste</mark>
+            </div>
+        </form>
+    </section>
 </template>

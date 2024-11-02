@@ -1,3 +1,8 @@
+
+:root {
+    --input-invalid-border-color: #ce6262;
+}
+
 /* Estilo para o body, definindo um fundo escuro e texto claro */
 body {
     background-color: #333;
@@ -60,4 +65,30 @@ input[type="submit"]:hover, button:hover {
 
 footer {
     color: #888;
+}
+
+/* Form Dark */
+
+mark {
+    background-color: transparent;
+}
+
+mark.error {
+    border-color: #ffaaaa;
+    color: #ee7b7b;
+}
+
+mark.info {
+    border-color: var(--info-border-color);
+    background-color: var(--info-background-color);
+}
+
+div.mark {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 600px;
+    padding: 10px 5px 10px 5px;
+
+
 }

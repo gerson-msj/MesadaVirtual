@@ -2,6 +2,6 @@
 @import url("./layout.css");
 @import url("./form.css");
 
-* {
-    box-sizing: border-box;
+.oculto {
+    display: none;
 }

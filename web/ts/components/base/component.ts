@@ -1,7 +1,7 @@
 import Service from "./service";
 import ViewModel from "./viewmodel";
 
-export default abstract class Component<TService extends Service, TViewModel extends ViewModel> extends HTMLElement {
+export default abstract class Component<TViewModel extends ViewModel, TService extends Service> extends HTMLElement {
 
     private _service: TService | null = null;
     protected get service() { return this._service! }
@@ -41,15 +41,9 @@ export default abstract class Component<TService extends Service, TViewModel ext
     //     return this.querySelector(`#${name}`) as T;
     // }
 
-    protected initializeService(service: new() => TService) {
+    protected initializeResources(viewModel: new() => TViewModel, service: new() => TService) {
         this._service = new service();
-    }
-
-    // protected initializeViewModel(viewModel: new(shadow: ShadowRoot) => TViewModel) {
-    //     this._viewModel = new viewModel(this.shadow);
-    // }
-    protected initializeViewModel(viewModel: new() => TViewModel) {
-        this._viewModel = new viewModel();
+        this._viewModel = new viewModel();    
     }
 
     protected dispatch(event: () => void, eventName: string){

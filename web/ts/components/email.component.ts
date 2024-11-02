@@ -1,3 +1,4 @@
+import ApiService from "../services/api.service";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
@@ -31,26 +32,28 @@ class EMailViewModel extends ViewModel {
 
 class EMailService extends Service {
 
+    private apiUsuario: ApiService;
+
     constructor() {
-        super("usuario");
+        super();
+        this.apiUsuario = new ApiService("usuario");
     }
 
     public async usuarioExistente(email: string): Promise<boolean> {
-        const result = await this.api.doGet<{ usuarioExistente: boolean }>(new URLSearchParams({ email: email }));
+        const result = await this.apiUsuario.doGet<{ usuarioExistente: boolean }>(new URLSearchParams({ email: email }));
         return result.usuarioExistente;
     }
 }
 
-export default class EMailComponent extends Component<EMailService, EMailViewModel> {
+export default class EMailComponent extends Component<EMailViewModel, EMailService> {
 
     constructor() {
         super("email");
     }
 
     initialize(): void {
-        this.initializeService(EMailService);
-        this.initializeViewModel(EMailViewModel);
-
+        this.initializeResources(EMailViewModel, EMailService);
+        
         this.viewModel.onVoltar = () =>
             this.dispatchEvent(new Event("voltar"));
 

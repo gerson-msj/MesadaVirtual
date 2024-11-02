@@ -13,19 +13,18 @@ class HeaderViewModel extends ViewModel {
 class HeaderService extends Service {
     
     constructor() {
-        super("header");
+        super();
     }
 
 }
 
-export default class HeaderComponent extends Component<HeaderService, HeaderViewModel> {
+export default class HeaderComponent extends Component<HeaderViewModel, HeaderService> {
     
     constructor() {
         super("header");
     }
 
     initialize(): void {
-        this.initializeService(HeaderService);
-        this.initializeViewModel(HeaderViewModel);
+        this.initializeResources(HeaderViewModel, HeaderService);
     }
 }

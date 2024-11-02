@@ -3,5 +3,7 @@
     "deno.disablePaths": [
         "./web"
     ],
-    "liveServer.settings.root": "./web/app"
+    "css.styleSheets": [
+        "web/app/styles/**/*.css"
+    ]
 }

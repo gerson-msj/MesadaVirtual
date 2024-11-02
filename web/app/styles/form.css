@@ -86,8 +86,15 @@ select {
     font-size: 10pt;
 }
 
+div.mark {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 600px;
+    padding: 10px 5px 10px 5px;
+}
+
 mark {
-    background-color: white;
     border: 1px solid;
     border-radius: 5px;
     flex-grow: 1;
@@ -95,21 +102,6 @@ mark {
     font-size: 10pt;
 }
 
-mark.error {
-    border-color: var(--input-invalid-border-color);
-}
-
 mark.info {
-    border-color: var(--info-border-color);
-    background-color: var(--info-background-color);
     text-align: center;
-}
-
-div.mark {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: 600px;
-    padding: 10px 5px 10px 5px;
-
 }

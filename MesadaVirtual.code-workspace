@@ -3,9 +3,5 @@
 		{
 			"path": "."
 		}
-	],
-	"settings": {
-		"liveServer.settings.root": "./web/app",
-		"cSpell.enabled": false
-	}
+	]
 }
