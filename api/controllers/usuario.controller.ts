@@ -22,15 +22,14 @@ class UsuarioService {
             [KeyDep, email ?? ""]
         ]);
 
-        //return { usuarioExistente: result?.some(r => r.value != null) ?? false };
-        return { usuarioExistente: false };
+        return { usuarioExistente: result?.some(r => r.value != null) ?? false };
     }
 
     async cadastrarResponsavel(request: CadastroResponsavelRequestModel): Promise<TokenResponseModel> {
 
         const usuarioExistenteResponse = await this.usuarioExistente(request.email);
         
-        if (!usuarioExistenteResponse.usuarioExistente)
+        if (usuarioExistenteResponse.usuarioExistente)
             return { token: null, message: "O email informado já está cadastrado." };
 
         const senha = await this.crypt!.criptografarSenha(request.senha);
