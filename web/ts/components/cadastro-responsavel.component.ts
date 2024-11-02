@@ -98,8 +98,8 @@ export default class CadastroResponsavelComponent extends Component<CadastroResp
         }
 
         this.addEventListener("initializeData", (ev) => {
-            const data: { email: string } = (ev as CustomEvent).detail;
-            this.viewModel.email = data.email;
+            const email: string = (ev as CustomEvent).detail;
+            this.viewModel.email = email;
         });
 
         this.dispatchEvent(new Event("initialized"));

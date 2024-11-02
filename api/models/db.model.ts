@@ -24,7 +24,7 @@ export interface PagamentoDbModel {
     valor: number;
 }
 
-export interface Dependente {
+export interface DependenteDbModel {
     usuario: UsuarioDbModel;
     responsavel: string;
     mesadas: MesadaDbModel[];

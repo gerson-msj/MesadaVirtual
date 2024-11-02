@@ -1,9 +1,10 @@
 import Controller from "./base/controller.ts";
 import Context from "./base/context.ts";
-import type { CadastroResponsavelRequestModel } from "../../web/ts/models/request.model.ts";
+import type { CadastroResponsavelRequestModel, LoginRequestModel } from "../../web/ts/models/request.model.ts";
 import { KeyDep, KeyResp, type ResponsavelDbModel } from "../models/db.model.ts";
 import type { TokenResponseModel, UsuarioExistenteResponseModel } from "../models/response.model.ts";
 import ServerCrypt from "../services/server.crypt.ts";
+import type { DependenteDbModel, UsuarioDbModel } from "../models/db.model.ts";
 
 class UsuarioService {
 
@@ -28,7 +29,7 @@ class UsuarioService {
     async cadastrarResponsavel(request: CadastroResponsavelRequestModel): Promise<TokenResponseModel> {
 
         const usuarioExistenteResponse = await this.usuarioExistente(request.email);
-        
+
         if (usuarioExistenteResponse.usuarioExistente)
             return { token: null, message: "O email informado já está cadastrado." };
 
@@ -47,9 +48,40 @@ class UsuarioService {
 
         const token = await this.crypt!.criarToken(request.email);
         return { token: token, message: "Cadastro Ok." };
-        
+
     }
-    
+
+    async login(request: LoginRequestModel): Promise<TokenResponseModel> {
+
+        let usuario: UsuarioDbModel | undefined;
+
+        const usuarios = await this.db!.getMany([
+            [KeyResp, request.email ?? ""],
+            [KeyDep, request.email ?? ""]
+        ]);
+
+        if (usuarios[0].value != null) {
+            const resp = usuarios[0].value as ResponsavelDbModel;
+            usuario = resp.usuario;
+        } else if (usuarios[1].value != null) {
+            const dep = usuarios[1].value as DependenteDbModel;
+            usuario = dep.usuario;
+        }
+
+        if (usuario == undefined) {
+            return { token: null, message: "O email informado não está cadastrado." };
+        }
+
+        const senhaValida = await this.crypt!.validarSenha(request.senha, usuario.senha);
+
+        if(!senhaValida){
+            return { token: null, message: "A senha informada é inválida." };
+        }
+
+        const token = await this.crypt!.criarToken(request.email);
+        return { token: token, message: "Login Ok." };
+    }
+
 }
 
 export default class UsuarioController extends Controller {
@@ -66,7 +98,7 @@ export default class UsuarioController extends Controller {
         if (context.url.pathname != "/api/usuario")
             return this.nextHandle(context);
 
-        if (["GET", "PUT"].includes(context.request.method)) {
+        if (["GET", "PUT", "POST"].includes(context.request.method)) {
             const db = await context.getDb();
             this.service.init(db);
         } else {
@@ -83,6 +115,12 @@ export default class UsuarioController extends Controller {
             case "PUT": {
                 const request: CadastroResponsavelRequestModel = await context.request.json();
                 const response: TokenResponseModel = await this.service.cadastrarResponsavel(request);
+                return context.ok(response);
+            }
+
+            case "POST": {
+                const request: LoginRequestModel = await context.request.json();
+                const response = await this.service.login(request);
                 return context.ok(response);
             }
 

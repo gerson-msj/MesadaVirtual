@@ -3,3 +3,8 @@ export interface CadastroResponsavelRequestModel {
     email: string,
     senha: string
 }
+
+export interface LoginRequestModel {
+    email: string,
+    senha: string
+}

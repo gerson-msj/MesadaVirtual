@@ -224,11 +224,8 @@ define("components/email.component", ["require", "exports", "services/api.servic
         }
         async avancar(email) {
             const usuarioExistente = await this.service.usuarioExistente(email);
-            this.dispatchEvent(new CustomEvent("avancar", { detail: {
-                    email: email,
-                    usuarioExistente: usuarioExistente
-                }
-            }));
+            const event = usuarioExistente ? "login" : "cadastro-responsavel";
+            this.dispatchEvent(new CustomEvent(event, { detail: email }));
         }
     }
     exports.default = EMailComponent;
@@ -322,8 +319,8 @@ define("components/cadastro-responsavel.component", ["require", "exports", "serv
                 }
             };
             this.addEventListener("initializeData", (ev) => {
-                const data = ev.detail;
-                this.viewModel.email = data.email;
+                const email = ev.detail;
+                this.viewModel.email = email;
             });
             this.dispatchEvent(new Event("initialized"));
         }
@@ -351,7 +348,94 @@ define("components/home.component", ["require", "exports", "components/base/comp
     }
     exports.default = HomeComponent;
 });
-define("app", ["require", "exports", "components/header.component", "components/index.component", "components/email.component", "components/cadastro-responsavel.component", "components/home.component"], function (require, exports, header_component_1, index_component_1, email_component_1, cadastro_responsavel_component_1, home_component_1) {
+define("components/login.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, api_service_3, component_6, service_6, viewmodel_6) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    api_service_3 = __importDefault(api_service_3);
+    component_6 = __importDefault(component_6);
+    service_6 = __importDefault(service_6);
+    viewmodel_6 = __importDefault(viewmodel_6);
+    class LoginViewModel extends viewmodel_6.default {
+        _email;
+        senha;
+        voltar;
+        avancar;
+        result;
+        get email() { return this._email.value; }
+        ;
+        set email(value) { this._email.value = value; }
+        onVoltar = () => { };
+        onAvancar = (request) => { };
+        constructor() {
+            super();
+            this._email = this.getElement("email");
+            this.senha = this.getElement("senha");
+            this.voltar = this.getElement("voltar");
+            this.avancar = this.getElement("avancar");
+            this.result = this.getElement("result");
+            this.voltar.addEventListener("click", () => this.onVoltar());
+            this.avancar.addEventListener("click", () => {
+                this.onAvancar({
+                    email: this.email,
+                    senha: this.senha.value
+                });
+            });
+        }
+        ocultarResult() {
+            if (!this.result.classList.contains("oculto"))
+                this.result.classList.add("ocultar");
+        }
+        apresentarResult(message) {
+            this.result.innerText = message;
+            if (this.result.classList.contains("oculto"))
+                this.result.classList.remove("oculto");
+        }
+    }
+    class LoginService extends service_6.default {
+        apiUsuario;
+        constructor() {
+            super();
+            this.apiUsuario = new api_service_3.default("usuario");
+        }
+        login(request) {
+            return this.apiUsuario.doPost(request);
+        }
+    }
+    class LoginComponent extends component_6.default {
+        constructor() {
+            super("login");
+        }
+        initialize() {
+            this.initializeResources(LoginViewModel, LoginService);
+            this.viewModel.ocultarResult();
+            this.viewModel.onVoltar = () => this.dispatchEvent(new Event("voltar"));
+            this.viewModel.onAvancar = async (request) => await this.login(request);
+            this.addEventListener("initializeData", (ev) => {
+                const email = ev.detail;
+                this.viewModel.email = email;
+            });
+            this.dispatchEvent(new Event("initialized"));
+        }
+        async login(request) {
+            try {
+                var tokenResp = await this.service.login(request);
+                if (tokenResp.token != null) {
+                    localStorage.setItem("token", tokenResp.token);
+                    this.dispatchEvent(new Event("avancar"));
+                }
+                else {
+                    throw new Error(tokenResp.message ?? "Algo deu errado! (⊙_◎)");
+                }
+            }
+            catch (error) {
+                console.error("login.component onAvancar ", error);
+                this.viewModel.apresentarResult("Algo deu errado! (⊙_◎)");
+            }
+        }
+    }
+    exports.default = LoginComponent;
+});
+define("app", ["require", "exports", "components/header.component", "components/index.component", "components/email.component", "components/cadastro-responsavel.component", "components/home.component", "components/login.component"], function (require, exports, header_component_1, index_component_1, email_component_1, cadastro_responsavel_component_1, home_component_1, login_component_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.default = main;
@@ -360,6 +444,7 @@ define("app", ["require", "exports", "components/header.component", "components/
     email_component_1 = __importDefault(email_component_1);
     cadastro_responsavel_component_1 = __importDefault(cadastro_responsavel_component_1);
     home_component_1 = __importDefault(home_component_1);
+    login_component_1 = __importDefault(login_component_1);
     const mainElement = document.querySelector("main");
     const loadedComponents = [];
     let currentComponent = null;
@@ -372,7 +457,11 @@ define("app", ["require", "exports", "components/header.component", "components/
         switch (currentComponentName) {
             case "email-component":
             case "cadastro-responsavel-component":
+            case "login-component":
                 loadEMail();
+                break;
+            case "home-component":
+                LoadHome();
                 break;
             default:
                 loadIndex();
@@ -382,12 +471,13 @@ define("app", ["require", "exports", "components/header.component", "components/
     function loadEMail() {
         const component = loadComponent("email-component", email_component_1.default);
         component.addEventListener("voltar", () => loadIndex());
-        component.addEventListener("avancar", (ev) => {
-            const data = ev.detail;
-            if (data.usuarioExistente)
-                console.log(data.email, data.usuarioExistente);
-            else
-                loadCadastroResponsavel(data.email);
+        component.addEventListener("cadastro-responsavel", (ev) => {
+            const email = ev.detail;
+            loadCadastroResponsavel(email);
+        });
+        component.addEventListener("login", (ev) => {
+            const email = ev.detail;
+            loadLogin(email);
         });
     }
     function loadIndex() {
@@ -398,7 +488,13 @@ define("app", ["require", "exports", "components/header.component", "components/
         const component = loadComponent("cadastro-responsavel-component", cadastro_responsavel_component_1.default);
         component.addEventListener("voltar", () => loadEMail());
         component.addEventListener("avancar", () => LoadHome());
-        component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: { email: email } })));
+        component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: email })));
+    }
+    function loadLogin(email) {
+        const component = loadComponent("login-component", login_component_1.default);
+        component.addEventListener("voltar", () => loadEMail());
+        component.addEventListener("avancar", () => LoadHome());
+        component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: email })));
     }
     function LoadHome() {
         const component = loadComponent("home-component", home_component_1.default);
@@ -414,22 +510,5 @@ define("app", ["require", "exports", "components/header.component", "components/
         mainElement.appendChild(currentComponent);
         return currentComponent;
     }
-});
-define("components/login.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_6, service_6, viewmodel_6) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    component_6 = __importDefault(component_6);
-    service_6 = __importDefault(service_6);
-    viewmodel_6 = __importDefault(viewmodel_6);
-    class LoginViewModel extends viewmodel_6.default {
-    }
-    class LoginService extends service_6.default {
-    }
-    class LoginComponent extends component_6.default {
-        initialize() {
-            this.initializeResources(LoginViewModel, LoginService);
-        }
-    }
-    exports.default = LoginComponent;
 });
 //# sourceMappingURL=app.js.map

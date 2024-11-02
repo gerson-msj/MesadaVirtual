@@ -1,16 +1,4 @@
 
-section.form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px 5px 10px 5px;
-}
-
-form {
-    width: 100%;
-    max-width: 600px;
-}
-
 form div {
     display: flex;
     margin-bottom: 10px;

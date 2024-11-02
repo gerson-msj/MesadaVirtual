@@ -63,9 +63,7 @@ export default class EMailComponent extends Component<EMailViewModel, EMailServi
 
     async avancar(email: string): Promise<void> {
         const usuarioExistente = await this.service.usuarioExistente(email);
-        this.dispatchEvent(new CustomEvent("avancar", { detail: { 
-            email: email, 
-            usuarioExistente: usuarioExistente } 
-        }));
+        const event = usuarioExistente ? "login" : "cadastro-responsavel";
+        this.dispatchEvent(new CustomEvent(event, { detail: email }));
     }
 }

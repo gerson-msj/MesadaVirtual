@@ -4,6 +4,7 @@ import IndexComponent from "./components/index.component";
 import EMailComponent from "./components/email.component";
 import CadastroResponsavelComponent from "./components/cadastro-responsavel.component";
 import HomeComponent from "./components/home.component";
+import LoginComponent from "./components/login.component";
 
 
 const mainElement = document.querySelector("main") as HTMLElement;
@@ -21,7 +22,11 @@ function load() {
     switch (currentComponentName) {
         case "email-component":
         case "cadastro-responsavel-component":
+        case "login-component":
             loadEMail();
+            break;
+        case "home-component":
+            LoadHome();
             break;
         default:
             loadIndex();
@@ -32,12 +37,13 @@ function load() {
 function loadEMail() {
     const component = loadComponent("email-component", EMailComponent);
     component.addEventListener("voltar", () => loadIndex());
-    component.addEventListener("avancar", (ev) => {
-        const data: { email: string, usuarioExistente: boolean } = (ev as CustomEvent).detail;
-        if (data.usuarioExistente)
-            console.log(data.email, data.usuarioExistente);
-        else
-            loadCadastroResponsavel(data.email);
+    component.addEventListener("cadastro-responsavel", (ev) => {
+        const email: string = (ev as CustomEvent).detail;
+        loadCadastroResponsavel(email);
+    });
+    component.addEventListener("login", (ev) => {
+        const email: string = (ev as CustomEvent).detail;
+        loadLogin(email);
     });
 }
 
@@ -50,9 +56,19 @@ function loadCadastroResponsavel(email: string) {
     const component = loadComponent("cadastro-responsavel-component", CadastroResponsavelComponent);
     component.addEventListener("voltar", () => loadEMail());
     component.addEventListener("avancar", () => LoadHome());
-    
+
     component.addEventListener("initialized", () =>
-        component.dispatchEvent(new CustomEvent("initializeData", { detail: { email: email } }))
+        component.dispatchEvent(new CustomEvent("initializeData", { detail: email }))
+    );
+}
+
+function loadLogin(email: string) {
+    const component = loadComponent("login-component", LoginComponent);
+    component.addEventListener("voltar", () => loadEMail());
+    component.addEventListener("avancar", () => LoadHome());
+
+    component.addEventListener("initialized", () =>
+        component.dispatchEvent(new CustomEvent("initializeData", { detail: email }))
     );
 }
 
