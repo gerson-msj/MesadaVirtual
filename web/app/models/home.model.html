@@ -1,33 +1,36 @@
 <template>
     <section class="main">
         <h1>Home</h1>
-
-        <div id="deps"></div>
-
-        <template id="depTemplate">
-            <table>
-                <caption>
-                    <div>
-                        <span>{nome}</span>
-                        <span>Menu Dep</span>
-                    </div>
-                </caption>
-                <thead>
-                    <tr>
-                        <th>Acumulado</th>
-                        <th>Pago</th>
-                        <th>Saldo</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{acumulado}</td>
-                        <td>{pago}</td>
-                        <td>{saldo}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </template>
-
+        <div id="cards"></div>
     </section>
+
+    <template id="cardTemplate">
+            
+        <table>
+            <caption>
+                <div>
+                    <span>{nome}</span>
+                    <span class="material-symbols-rounded">
+                        menu
+                    </span>
+                </div>
+            </caption>
+            <thead>
+                <tr>
+                    <th>Acumulado</th>
+                    <th>Pago</th>
+                    <th>Saldo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{acumulado}</td>
+                    <td>{pago}</td>
+                    <td>{saldo}</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </template>
+
 </template>

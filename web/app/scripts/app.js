@@ -337,17 +337,17 @@ define("components/home.component", ["require", "exports", "components/base/comp
     service_5 = __importDefault(service_5);
     viewmodel_5 = __importDefault(viewmodel_5);
     class HomeViewModel extends viewmodel_5.default {
-        deps;
-        depTemplate;
+        cards;
+        cardTemplate;
         constructor() {
             super();
-            this.deps = this.getElement("deps");
-            this.depTemplate = this.getElement("depTemplate");
+            this.cards = this.getElement("cards");
+            this.cardTemplate = this.getElement("cardTemplate");
         }
-        apresentarDependentes(listaDependentes) {
-            const template = this.depTemplate.innerHTML;
-            this.deps.innerHTML = listaDependentes
-                .map(dep => template
+        apresentarDependentes(cards) {
+            const card = this.cardTemplate.innerHTML;
+            this.cards.innerHTML = cards
+                .map(dep => card
                 .replace("{nome}", dep.nome)
                 .replace("{acumulado}", dep.acumulado.toLocaleString('pt-br', { minimumFractionDigits: 2 }))
                 .replace("{pago}", dep.pago.toLocaleString('pt-br', { minimumFractionDigits: 2 }))

@@ -1,10 +1,10 @@
 import Controller from "./base/controller.ts";
 import Context from "./base/context.ts";
 import type { CadastroResponsavelRequestModel, LoginRequestModel } from "../../web/ts/models/request.model.ts";
-import { KeyDep, KeyResp, type ResponsavelDbModel } from "../models/db.model.ts";
-import type { TokenResponseModel, UsuarioExistenteResponseModel } from "../models/response.model.ts";
+import { PerfilDep, PerfilResp, type ResponsavelDbModel } from "../models/db.model.ts";
+import type { TokenResponseModel, TokenSubject, UsuarioExistenteResponseModel } from "../models/response.model.ts";
 import ServerCrypt from "../services/server.crypt.ts";
-import type { DependenteDbModel, UsuarioDbModel } from "../models/db.model.ts";
+import type { DependenteDbModel, Perfil, UsuarioDbModel } from "../models/db.model.ts";
 
 class UsuarioService {
 
@@ -19,8 +19,8 @@ class UsuarioService {
     async usuarioExistente(email: string | null): Promise<UsuarioExistenteResponseModel> {
 
         const result = await this.db?.getMany([
-            [KeyResp, email ?? ""],
-            [KeyDep, email ?? ""]
+            [PerfilResp, email ?? ""],
+            [PerfilDep, email ?? ""]
         ]);
 
         return { usuarioExistente: result?.some(r => r.value != null) ?? false };
@@ -42,11 +42,12 @@ class UsuarioService {
             dependentes: []
         };
 
-        const result = await this.db!.set([KeyResp, request.email], responsavel);
+        const result = await this.db!.set([PerfilResp, request.email], responsavel);
         if (!result.ok)
             return { token: null, message: "Sistema indisponível no momento." };
 
-        const token = await this.crypt!.criarToken(request.email);
+        const sub: TokenSubject = { email: request.email, perfil: "Resp" };
+        const token = await this.crypt!.criarToken(sub);
         return { token: token, message: "Cadastro Ok." };
 
     }
@@ -54,10 +55,11 @@ class UsuarioService {
     async login(request: LoginRequestModel): Promise<TokenResponseModel> {
 
         let usuario: UsuarioDbModel | undefined;
+        let perfil: Perfil = PerfilResp;
 
         const usuarios = await this.db!.getMany([
-            [KeyResp, request.email ?? ""],
-            [KeyDep, request.email ?? ""]
+            [PerfilResp, request.email ?? ""],
+            [PerfilDep, request.email ?? ""]
         ]);
 
         if (usuarios[0].value != null) {
@@ -66,6 +68,7 @@ class UsuarioService {
         } else if (usuarios[1].value != null) {
             const dep = usuarios[1].value as DependenteDbModel;
             usuario = dep.usuario;
+            perfil = PerfilDep;
         }
 
         if (usuario == undefined) {
@@ -74,11 +77,12 @@ class UsuarioService {
 
         const senhaValida = await this.crypt!.validarSenha(request.senha, usuario.senha);
 
-        if(!senhaValida){
+        if (!senhaValida) {
             return { token: null, message: "A senha informada é inválida." };
         }
 
-        const token = await this.crypt!.criarToken(request.email);
+        const sub: TokenSubject = { email: request.email, perfil: perfil };
+        const token = await this.crypt!.criarToken(sub);
         return { token: token, message: "Login Ok." };
     }
 

@@ -22,7 +22,7 @@ export default class ServerCrypt {
         return senhaCrypto === senhaCryptoComparacao;
     }
 
-    public async criarToken(sub: string): Promise<string> {
+    public async criarToken<T>(sub: T): Promise<string> {
         const key = await this.getTokenKey();
         
         const header = this.stringToBase64(JSON.stringify({ "alg": "HS256", "typ": "JWT" }));
@@ -52,14 +52,14 @@ export default class ServerCrypt {
     }
 
     public tokenExpirado(token: string): boolean {
-        const payload: { sub: string, exp: number } = JSON.parse(atob(token.split(".")[1]));
+        const payload: { sub: object, exp: number } = JSON.parse(atob(token.split(".")[1]));
         const currTime = Math.floor((new Date()).getTime() / 1000);
         const expirado = currTime > payload.exp;
         return expirado;
     }
 
-    public tokenSub(token: string): string {
-        const payload: { sub: string, exp: number } = JSON.parse(atob(token.split(".")[1]));
+    public tokenSub<T>(token: string): T {
+        const payload: { sub: T, exp: number } = JSON.parse(atob(token.split(".")[1]));
         return payload.sub;
     }
 

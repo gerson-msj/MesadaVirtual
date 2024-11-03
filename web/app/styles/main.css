@@ -15,21 +15,21 @@
     display: none;
 }
 
-/* Tabelas... */
+/* cards... */
 
-#deps {
+#cards {
     width: 100%;
     max-width: 600px;
     background-color: #444;
     padding: 5px 10px;
 }
 
-#deps table {
+#cards table {
     border: 1px solid #fff;
     width: 100%;
 }
 
-#deps caption div {
+#cards caption div {
     display: grid;
     grid-template-columns: auto 75px;
     gap: 0;
@@ -38,20 +38,21 @@
     padding: 5px;
 }
 
-#deps caption div span:first-child {
+#cards caption div span:first-child {
     justify-self: start;
 }
 
-#deps th {
+#cards caption div span:last-child {
+    justify-self: end;
+}
+
+#cards th {
     width: 33%;
 }
 
-#deps tbody tr {
+#cards tbody tr {
     text-align: center;
 }
 
 
-
-
-
-/* ...Tabelas */
+/* ...cards */

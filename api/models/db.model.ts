@@ -1,5 +1,6 @@
-export const KeyResp = "resp";
-export const KeyDep = "dep";
+export type Perfil = "Resp" | "Dep";
+export const PerfilResp: Perfil = "Resp";
+export const PerfilDep: Perfil = "Dep";
 
 export interface UsuarioDbModel {
     nome: string;

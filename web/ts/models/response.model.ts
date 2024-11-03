@@ -7,8 +7,8 @@ export interface UsuarioExistenteResponseModel {
     usuarioExistente: boolean;
 }
 
-export interface DependenteResponseModel {
-    email: string;
+export interface CardResponseModel {
+    email: string | null;
     nome: string;
     acumulado: number;
     pago: number;
