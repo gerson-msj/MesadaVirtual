@@ -51,7 +51,7 @@ export default class EMailComponent extends Component<EMailViewModel, EMailServi
         super("email");
     }
 
-    initialize(): void {
+    initialize(): Promise<void> {
         this.initializeResources(EMailViewModel, EMailService);
         
         this.viewModel.onVoltar = () =>
@@ -59,6 +59,8 @@ export default class EMailComponent extends Component<EMailViewModel, EMailServi
 
         this.viewModel.onAvancar = async (email: string) =>
             await this.avancar(email);
+
+        return Promise.resolve();
     }
 
     async avancar(email: string): Promise<void> {

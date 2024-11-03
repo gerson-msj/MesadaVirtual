@@ -6,3 +6,11 @@ export interface TokenResponseModel {
 export interface UsuarioExistenteResponseModel {
     usuarioExistente: boolean;
 }
+
+export interface DependenteResponseModel {
+    email: string;
+    nome: string;
+    acumulado: number;
+    pago: number;
+    saldo: number;
+}

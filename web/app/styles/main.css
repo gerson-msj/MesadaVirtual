@@ -14,3 +14,44 @@
 .oculto {
     display: none;
 }
+
+/* Tabelas... */
+
+#deps {
+    width: 100%;
+    max-width: 600px;
+    background-color: #444;
+    padding: 5px 10px;
+}
+
+#deps table {
+    border: 1px solid #fff;
+    width: 100%;
+}
+
+#deps caption div {
+    display: grid;
+    grid-template-columns: auto 75px;
+    gap: 0;
+    align-items: center;
+    background-color: #555;
+    padding: 5px;
+}
+
+#deps caption div span:first-child {
+    justify-self: start;
+}
+
+#deps th {
+    width: 33%;
+}
+
+#deps tbody tr {
+    text-align: center;
+}
+
+
+
+
+
+/* ...Tabelas */

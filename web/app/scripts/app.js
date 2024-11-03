@@ -38,7 +38,7 @@ define("components/base/component", ["require", "exports"], function (require, e
         }
         async initializeElement() {
             await this.initializeModel();
-            this.initialize();
+            await this.initialize();
         }
         async initializeModel() {
             const requestModel = await fetch(this.modelPath);
@@ -55,6 +55,7 @@ define("components/base/component", ["require", "exports"], function (require, e
         initializeResources(viewModel, service) {
             this._service = new service();
             this._viewModel = new viewModel();
+            return Promise.resolve();
         }
         dispatch(event, eventName) {
             event = () => this.dispatchEvent(new Event(eventName));
@@ -82,8 +83,8 @@ define("components/header.component", ["require", "exports", "components/base/co
         constructor() {
             super("header");
         }
-        initialize() {
-            this.initializeResources(HeaderViewModel, HeaderService);
+        async initialize() {
+            await this.initializeResources(HeaderViewModel, HeaderService);
         }
     }
     exports.default = HeaderComponent;
@@ -109,8 +110,8 @@ define("components/index.component", ["require", "exports", "components/base/com
         constructor() {
             super("index");
         }
-        initialize() {
-            this.initializeResources(IndexViewModel, IndexService);
+        async initialize() {
+            await this.initializeResources(IndexViewModel, IndexService);
             this.viewModel.onEntrar = () => this.dispatchEvent(new Event("entrar"));
         }
     }
@@ -221,6 +222,7 @@ define("components/email.component", ["require", "exports", "services/api.servic
             this.initializeResources(EMailViewModel, EMailService);
             this.viewModel.onVoltar = () => this.dispatchEvent(new Event("voltar"));
             this.viewModel.onAvancar = async (email) => await this.avancar(email);
+            return Promise.resolve();
         }
         async avancar(email) {
             const usuarioExistente = await this.service.usuarioExistente(email);
@@ -298,8 +300,8 @@ define("components/cadastro-responsavel.component", ["require", "exports", "serv
         constructor() {
             super("cadastro-responsavel");
         }
-        initialize() {
-            this.initializeResources(CadastroResponsavelViewmodel, CadastroResponsavelService);
+        async initialize() {
+            await this.initializeResources(CadastroResponsavelViewmodel, CadastroResponsavelService);
             this.viewModel.ocultarResult();
             this.viewModel.onVoltar = () => this.dispatchEvent(new Event("voltar"));
             this.viewModel.onAvancar = async (request) => {
@@ -335,15 +337,47 @@ define("components/home.component", ["require", "exports", "components/base/comp
     service_5 = __importDefault(service_5);
     viewmodel_5 = __importDefault(viewmodel_5);
     class HomeViewModel extends viewmodel_5.default {
+        deps;
+        depTemplate;
+        constructor() {
+            super();
+            this.deps = this.getElement("deps");
+            this.depTemplate = this.getElement("depTemplate");
+        }
+        apresentarDependentes(listaDependentes) {
+            const template = this.depTemplate.innerHTML;
+            this.deps.innerHTML = listaDependentes
+                .map(dep => template
+                .replace("{nome}", dep.nome)
+                .replace("{acumulado}", dep.acumulado.toLocaleString('pt-br', { minimumFractionDigits: 2 }))
+                .replace("{pago}", dep.pago.toLocaleString('pt-br', { minimumFractionDigits: 2 }))
+                .replace("{saldo}", dep.saldo.toLocaleString('pt-br', { minimumFractionDigits: 2 })))
+                .join("");
+        }
     }
     class HomeService extends service_5.default {
+        constructor() {
+            super();
+        }
+        async ObterDependentes() {
+            const listaDependentes = [];
+            for (let index = 1; index <= 50; index++) {
+                listaDependentes.push({ email: `dep${index}@email.com`, nome: `Dep ${index}`, acumulado: 50, pago: 10, saldo: 40 });
+            }
+            return Promise.resolve(listaDependentes);
+        }
     }
     class HomeComponent extends component_5.default {
         constructor() {
             super("home");
         }
-        initialize() {
-            this.initializeResources(HomeViewModel, HomeService);
+        async initialize() {
+            await this.initializeResources(HomeViewModel, HomeService);
+            await this.popularDependentes();
+        }
+        async popularDependentes() {
+            const listaDependentes = await this.service.ObterDependentes();
+            this.viewModel.apresentarDependentes(listaDependentes);
         }
     }
     exports.default = HomeComponent;
@@ -405,8 +439,8 @@ define("components/login.component", ["require", "exports", "services/api.servic
         constructor() {
             super("login");
         }
-        initialize() {
-            this.initializeResources(LoginViewModel, LoginService);
+        async initialize() {
+            await this.initializeResources(LoginViewModel, LoginService);
             this.viewModel.ocultarResult();
             this.viewModel.onVoltar = () => this.dispatchEvent(new Event("voltar"));
             this.viewModel.onAvancar = async (request) => await this.login(request);

@@ -26,8 +26,8 @@ class IndexComponent extends Component<IndexViewModel, IndexService> {
         super("index");
     }
 
-    initialize(): void {
-        this.initializeResources(IndexViewModel, IndexService);
+    async initialize(): Promise<void> {
+        await this.initializeResources(IndexViewModel, IndexService);
         this.viewModel.onEntrar = () => 
             this.dispatchEvent(new Event("entrar"));
     }

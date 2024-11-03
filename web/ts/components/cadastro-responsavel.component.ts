@@ -74,8 +74,8 @@ export default class CadastroResponsavelComponent extends Component<CadastroResp
 
     }
 
-    initialize(): void {
-        this.initializeResources(CadastroResponsavelViewmodel, CadastroResponsavelService);
+    async initialize(): Promise<void> {
+        await this.initializeResources(CadastroResponsavelViewmodel, CadastroResponsavelService);
 
         this.viewModel.ocultarResult();
 

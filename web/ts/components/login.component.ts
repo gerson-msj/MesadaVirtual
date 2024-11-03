@@ -70,8 +70,8 @@ class LoginComponent extends Component<LoginViewModel, LoginService> {
         super("login");
     }
 
-    initialize(): void {
-        this.initializeResources(LoginViewModel, LoginService);
+    async initialize(): Promise<void> {
+        await this.initializeResources(LoginViewModel, LoginService);
 
         this.viewModel.ocultarResult();
 

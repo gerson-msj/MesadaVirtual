@@ -24,7 +24,7 @@ export default class HeaderComponent extends Component<HeaderViewModel, HeaderSe
         super("header");
     }
 
-    initialize(): void {
-        this.initializeResources(HeaderViewModel, HeaderService);
+    async initialize(): Promise<void> {
+        await this.initializeResources(HeaderViewModel, HeaderService);
     }
 }

@@ -11,7 +11,7 @@ export default abstract class Component<TViewModel extends ViewModel, TService e
     
     private modelPath: string;
 
-    abstract initialize(): void;
+    abstract initialize(): Promise<void>;
 
     constructor(modelName: string) {
         super();
@@ -24,7 +24,7 @@ export default abstract class Component<TViewModel extends ViewModel, TService e
 
     private async initializeElement() {
         await this.initializeModel();
-        this.initialize();
+        await this.initialize();
     }
 
     private async initializeModel() {
@@ -41,9 +41,10 @@ export default abstract class Component<TViewModel extends ViewModel, TService e
     //     return this.querySelector(`#${name}`) as T;
     // }
 
-    protected initializeResources(viewModel: new() => TViewModel, service: new() => TService) {
+    protected initializeResources(viewModel: new() => TViewModel, service: new() => TService): Promise<void> {
         this._service = new service();
         this._viewModel = new viewModel();    
+        return Promise.resolve();
     }
 
     protected dispatch(event: () => void, eventName: string){
