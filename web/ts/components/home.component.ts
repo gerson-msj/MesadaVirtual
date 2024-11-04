@@ -1,4 +1,4 @@
-import { headerMenuClick, headerMenuVisible } from "../models/event.model";
+import { headerMenuClick, headerMenuVisible, Perfil, tokenLSKey } from "../models/const.model";
 import { CardResponseModel } from "../models/response.model";
 import Component from "./base/component";
 import Service from "./base/service";
@@ -8,32 +8,39 @@ class HomeViewModel extends ViewModel {
 
     private cards: HTMLDivElement;
     private cardTemplate: HTMLTemplateElement;
-    private headerMenu: HTMLDivElement;
+    private headerMenuResp: HTMLDivElement;
+    private headerMenuDep: HTMLDivElement;
     private headerMenuBackdrop: HTMLDivElement;
+
+    public onHeaderMenuBackdropClick = () => { };
 
     constructor() {
         super();
         this.cards = this.getElement("cards");
         this.cardTemplate = this.getElement("cardTemplate");
-        this.headerMenu = this.getElement("headerMenu");
+        this.headerMenuResp = this.getElement("headerMenuResp");
+        this.headerMenuDep = this.getElement("headerMenuDep");
         this.headerMenuBackdrop = this.getElement("headerMenuBackdrop");
 
-        document.addEventListener(headerMenuClick, () => {
-            this.exibirHeaderMenu();
-        });
-
-        this.headerMenuBackdrop.addEventListener("click", () => {
-            this.ocutarHeaderMenu();
-        });
+        this.headerMenuBackdrop.addEventListener("click", () =>
+            this.onHeaderMenuBackdropClick());
     }
 
-    exibirHeaderMenu() {
-        this.headerMenu.classList.remove("oculto");
+    exibirHeaderMenu(perfil: Perfil) {
+        if (perfil == "Resp")
+            this.headerMenuResp.classList.remove("oculto");
+        else
+            this.headerMenuDep.classList.remove("oculto");
+
         this.headerMenuBackdrop.classList.remove("oculto");
     }
 
-    ocutarHeaderMenu() {
-        this.headerMenu.classList.add("oculto");
+    ocutarHeaderMenu(perfil: Perfil) {
+        if (perfil == "Resp")
+            this.headerMenuResp.classList.add("oculto");
+        else
+            this.headerMenuDep.classList.add("oculto");
+
         this.headerMenuBackdrop.classList.add("oculto");
     }
 
@@ -67,6 +74,8 @@ class HomeService extends Service {
 
 export default class HomeComponent extends Component<HomeViewModel, HomeService> {
 
+
+
     constructor() {
         super("home");
 
@@ -74,17 +83,28 @@ export default class HomeComponent extends Component<HomeViewModel, HomeService>
 
     async initialize(): Promise<void> {
         await this.initializeResources(HomeViewModel, HomeService);
+
+        if (!this.validarTokenSubject() || this.tokenSubject == null) {
+            this.dispatchEvent(new Event("sair"));
+            return;
+        }
+
         await this.popularDependentes();
 
         document.dispatchEvent(new CustomEvent(headerMenuVisible, { detail: true }));
 
-        
+        this.viewModel.exibirHeaderMenu(this.tokenSubject!.perfil);
+
+        document.addEventListener(headerMenuClick, () =>
+            this.viewModel.exibirHeaderMenu(this.tokenSubject!.perfil));
+
+        this.viewModel.onHeaderMenuBackdropClick = () => 
+            this.viewModel.ocutarHeaderMenu(this.tokenSubject!.perfil);
     }
 
     async popularDependentes() {
         const listaDependentes = await this.service.ObterDependentes();
         this.viewModel.apresentarDependentes(listaDependentes);
     }
-
 }
 

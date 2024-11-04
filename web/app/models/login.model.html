@@ -1,20 +1,24 @@
 <template>
-    <section class="form">
-        <h2>Login</h2>
-        <form autocomplete="off">
-            <div class="field">
-                <label for="email">Senha</label>
-                <input id="email" type="email" autocomplete="username" disabled>
-            </div>
-            <div class="field">
-                <label for="senha">Senha</label>
-                <input id="senha" type="password" autocomplete="current-password">
-            </div>
-            <div class="button">
-                <button id="voltar" type="button">Voltar</button>
-                <button id="avancar" type="button">Avançar...</button>
-                <mark id="result" class="error oculto">Teste</mark>
-            </div>
-        </form>
-    </section>
+    <div class="layout-main">
+        <div class="layout-main-container">
+
+            <h2>Login</h2>
+            <form autocomplete="off">
+                <div class="field">
+                    <label for="email">Senha</label>
+                    <input id="email" type="email" autocomplete="username" disabled>
+                </div>
+                <div class="field">
+                    <label for="senha">Senha</label>
+                    <input id="senha" type="password" autocomplete="current-password">
+                </div>
+                <div class="button">
+                    <button id="voltar" type="button">Voltar</button>
+                    <button id="avancar" type="button">Avançar...</button>
+                    <mark id="result" class="error oculto">Teste</mark>
+                </div>
+            </form>
+            
+        </div>
+    </div>
 </template>

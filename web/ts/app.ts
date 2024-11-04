@@ -48,6 +48,7 @@ function loadEMail() {
 }
 
 function loadIndex() {
+    localStorage.clear();
     const component = loadComponent("index-component", IndexComponent);
     component.addEventListener("entrar", () => loadEMail());
 }
@@ -74,6 +75,9 @@ function loadLogin(email: string) {
 
 function LoadHome() {
     const component = loadComponent("home-component", HomeComponent);
+
+    component.addEventListener("sair", () => 
+        loadIndex());
 }
 
 function loadComponent(name: string, constructor: CustomElementConstructor): HTMLElement {

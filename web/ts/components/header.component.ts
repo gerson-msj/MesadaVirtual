@@ -1,4 +1,4 @@
-import { headerMenuClick, headerMenuVisible } from "../models/event.model";
+import { headerMenuClick, headerMenuVisible } from "../models/const.model";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";

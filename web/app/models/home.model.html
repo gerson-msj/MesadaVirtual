@@ -1,43 +1,70 @@
 <template>
-    <section class="main">
-        <h1>Home</h1>
-        <div id="cards"></div>
-    </section>
 
-    <section class="header-menu">
-        <div id="headerMenu" class="menu oculto">
-            opções
-        </div>
-        <div id="headerMenuBackdrop" class="backdrop oculto"></div>
-    </section>
+    <div class="layout-main">
+        <div class="layout-main-container">
 
-    <template id="cardTemplate">
-            
-        <table>
-            <caption>
-                <div>
-                    <span>{nome}</span>
-                    <span class="material-symbols-rounded">
-                        menu
-                    </span>
+            <h1>Home</h1>
+            <div id="cards"></div>
+
+
+            <section class="header-menu">
+                <div id="headerMenuResp" class="menu oculto">
+                    <button type="menu">
+                        <span class="material-symbols-rounded">
+                            person_add
+                        </span>
+                        <label>Adicionar Dependente</label>
+                    </button>
+                    <button type="menu">
+                        <span class="material-symbols-rounded">
+                            manage_accounts
+                        </span>
+                        <label>Meu Cadastro</label>
+                    </button>
+                    <button type="menu">
+                        <span class="material-symbols-rounded">
+                            logout
+                        </span>
+                        <label>Sair</label>
+                    </button>
+
                 </div>
-            </caption>
-            <thead>
-                <tr>
-                    <th>Acumulado</th>
-                    <th>Pago</th>
-                    <th>Saldo</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>{acumulado}</td>
-                    <td>{pago}</td>
-                    <td>{saldo}</td>
-                </tr>
-            </tbody>
-        </table>
+                <div id="headerMenuDep" class="menu oculto">
+                    opções Dep
+                </div>
+                <div id="headerMenuBackdrop" class="backdrop oculto"></div>
+            </section>
 
-    </template>
+            <template id="cardTemplate">
+
+                <table>
+                    <caption>
+                        <div>
+                            <span>{nome}</span>
+                            <span class="material-symbols-rounded">
+                                menu
+                            </span>
+                        </div>
+                    </caption>
+                    <thead>
+                        <tr>
+                            <th>Acumulado</th>
+                            <th>Pago</th>
+                            <th>Saldo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{acumulado}</td>
+                            <td>{pago}</td>
+                            <td>{saldo}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </template>
+
+        </div>
+    </div>
 
 </template>

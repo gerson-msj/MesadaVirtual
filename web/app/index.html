@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,19 +9,25 @@
     <script src="scripts/require.js"></script>
     <script src="scripts/app.js"></script>
 </head>
+
 <body>
     <header>
         <header-component id="header"></header-component>
     </header>
-    
+
     <main></main>
 
     <footer>
-        Mesada Virtual - 2024 - v0.1
+        <div class="layout-footer">
+            <div class="layout-footer-container">
+                Mesada Virtual - 2024 - v0.1
+            </div>
+        </section>
     </footer>
 
     <script>
         require(["app"], (module) => module.default());
     </script>
 </body>
+
 </html>

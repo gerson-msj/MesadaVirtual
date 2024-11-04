@@ -1,12 +1,19 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-define("models/event.model", ["require", "exports"], function (require, exports) {
+define("models/const.model", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.headerMenuVisible = exports.headerMenuClick = void 0;
+    exports.tokenLSKey = exports.headerMenuVisible = exports.headerMenuClick = exports.PerfilDep = exports.PerfilResp = void 0;
+    exports.PerfilResp = "Resp";
+    exports.PerfilDep = "Dep";
     exports.headerMenuClick = "headerMenuClick";
     exports.headerMenuVisible = "headermenuVisible";
+    exports.tokenLSKey = "token";
+});
+define("models/model", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
 });
 define("components/base/service", ["require", "exports"], function (require, exports) {
     "use strict";
@@ -35,6 +42,8 @@ define("components/base/component", ["require", "exports"], function (require, e
         get service() { return this._service; }
         _viewModel = null;
         get viewModel() { return this._viewModel; }
+        _tokenSubject = null;
+        get tokenSubject() { return this._tokenSubject; }
         modelPath;
         constructor(modelName) {
             super();
@@ -55,6 +64,17 @@ define("components/base/component", ["require", "exports"], function (require, e
             const template = modelTemplate.querySelector("template");
             this.appendChild(template.content.cloneNode(true));
         }
+        validarTokenSubject() {
+            try {
+                const token = localStorage.getItem("token");
+                const payload = JSON.parse(atob(token.split(".")[1]));
+                this._tokenSubject = payload.sub;
+                return true;
+            }
+            catch (error) {
+                return false;
+            }
+        }
         // protected getElement<T>(name: string): T {
         //     //return this.shadow.querySelector(`#${name}`) as T;
         //     return this.querySelector(`#${name}`) as T;
@@ -70,7 +90,7 @@ define("components/base/component", ["require", "exports"], function (require, e
     }
     exports.default = Component;
 });
-define("components/header.component", ["require", "exports", "models/event.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, event_model_1, component_1, service_1, viewmodel_1) {
+define("components/header.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_1, component_1, service_1, viewmodel_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_1 = __importDefault(component_1);
@@ -83,7 +103,7 @@ define("components/header.component", ["require", "exports", "models/event.model
             super();
             this.menu = this.getElement("menu");
             this.menu.addEventListener("click", () => this.onMenuClick());
-            document.addEventListener(event_model_1.headerMenuVisible, (ev) => {
+            document.addEventListener(const_model_1.headerMenuVisible, (ev) => {
                 const visible = ev.detail;
             });
         }
@@ -106,8 +126,8 @@ define("components/header.component", ["require", "exports", "models/event.model
         }
         async initialize() {
             await this.initializeResources(HeaderViewModel, HeaderService);
-            this.viewModel.onMenuClick = () => document.dispatchEvent(new Event(event_model_1.headerMenuClick));
-            document.addEventListener(event_model_1.headerMenuVisible, (ev) => {
+            this.viewModel.onMenuClick = () => document.dispatchEvent(new Event(const_model_1.headerMenuClick));
+            document.addEventListener(const_model_1.headerMenuVisible, (ev) => {
                 const visible = ev.detail;
                 this.viewModel.menuVisivel(visible);
             });
@@ -356,7 +376,7 @@ define("components/cadastro-responsavel.component", ["require", "exports", "serv
     }
     exports.default = CadastroResponsavelComponent;
 });
-define("components/home.component", ["require", "exports", "models/event.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, event_model_2, component_5, service_5, viewmodel_5) {
+define("components/home.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_2, component_5, service_5, viewmodel_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_5 = __importDefault(component_5);
@@ -365,27 +385,31 @@ define("components/home.component", ["require", "exports", "models/event.model",
     class HomeViewModel extends viewmodel_5.default {
         cards;
         cardTemplate;
-        headerMenu;
+        headerMenuResp;
+        headerMenuDep;
         headerMenuBackdrop;
+        onHeaderMenuBackdropClick = () => { };
         constructor() {
             super();
             this.cards = this.getElement("cards");
             this.cardTemplate = this.getElement("cardTemplate");
-            this.headerMenu = this.getElement("headerMenu");
+            this.headerMenuResp = this.getElement("headerMenuResp");
+            this.headerMenuDep = this.getElement("headerMenuDep");
             this.headerMenuBackdrop = this.getElement("headerMenuBackdrop");
-            document.addEventListener(event_model_2.headerMenuClick, () => {
-                this.exibirHeaderMenu();
-            });
-            this.headerMenuBackdrop.addEventListener("click", () => {
-                this.ocutarHeaderMenu();
-            });
+            this.headerMenuBackdrop.addEventListener("click", () => this.onHeaderMenuBackdropClick());
         }
-        exibirHeaderMenu() {
-            this.headerMenu.classList.remove("oculto");
+        exibirHeaderMenu(perfil) {
+            if (perfil == "Resp")
+                this.headerMenuResp.classList.remove("oculto");
+            else
+                this.headerMenuDep.classList.remove("oculto");
             this.headerMenuBackdrop.classList.remove("oculto");
         }
-        ocutarHeaderMenu() {
-            this.headerMenu.classList.add("oculto");
+        ocutarHeaderMenu(perfil) {
+            if (perfil == "Resp")
+                this.headerMenuResp.classList.add("oculto");
+            else
+                this.headerMenuDep.classList.add("oculto");
             this.headerMenuBackdrop.classList.add("oculto");
         }
         apresentarDependentes(cards) {
@@ -417,8 +441,15 @@ define("components/home.component", ["require", "exports", "models/event.model",
         }
         async initialize() {
             await this.initializeResources(HomeViewModel, HomeService);
+            if (!this.validarTokenSubject() || this.tokenSubject == null) {
+                this.dispatchEvent(new Event("sair"));
+                return;
+            }
             await this.popularDependentes();
-            document.dispatchEvent(new CustomEvent(event_model_2.headerMenuVisible, { detail: true }));
+            document.dispatchEvent(new CustomEvent(const_model_2.headerMenuVisible, { detail: true }));
+            this.viewModel.exibirHeaderMenu(this.tokenSubject.perfil);
+            document.addEventListener(const_model_2.headerMenuClick, () => this.viewModel.exibirHeaderMenu(this.tokenSubject.perfil));
+            this.viewModel.onHeaderMenuBackdropClick = () => this.viewModel.ocutarHeaderMenu(this.tokenSubject.perfil);
         }
         async popularDependentes() {
             const listaDependentes = await this.service.ObterDependentes();
@@ -560,6 +591,7 @@ define("app", ["require", "exports", "components/header.component", "components/
         });
     }
     function loadIndex() {
+        localStorage.clear();
         const component = loadComponent("index-component", index_component_1.default);
         component.addEventListener("entrar", () => loadEMail());
     }
@@ -577,6 +609,7 @@ define("app", ["require", "exports", "components/header.component", "components/
     }
     function LoadHome() {
         const component = loadComponent("home-component", home_component_1.default);
+        component.addEventListener("sair", () => loadIndex());
     }
     function loadComponent(name, constructor) {
         if (!loadedComponents.includes(name)) {

@@ -1,3 +1,4 @@
+import { TokenSubjectModel } from "../../models/model";
 import Service from "./service";
 import ViewModel from "./viewmodel";
 
@@ -8,7 +9,10 @@ export default abstract class Component<TViewModel extends ViewModel, TService e
 
     private _viewModel: TViewModel | null = null;
     protected get viewModel() { return this._viewModel!; }
-    
+
+    private _tokenSubject: TokenSubjectModel | null = null;
+    protected get tokenSubject() { return this._tokenSubject; }
+
     private modelPath: string;
 
     abstract initialize(): Promise<void>;
@@ -36,18 +40,29 @@ export default abstract class Component<TViewModel extends ViewModel, TService e
         this.appendChild(template.content.cloneNode(true));
     }
 
+    protected validarTokenSubject(): boolean {
+        try {
+            const token = localStorage.getItem("token");
+            const payload: { sub: TokenSubjectModel, exp: number } = JSON.parse(atob(token!.split(".")[1]));
+            this._tokenSubject = payload.sub;
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
     // protected getElement<T>(name: string): T {
     //     //return this.shadow.querySelector(`#${name}`) as T;
     //     return this.querySelector(`#${name}`) as T;
     // }
 
-    protected initializeResources(viewModel: new() => TViewModel, service: new() => TService): Promise<void> {
+    protected initializeResources(viewModel: new () => TViewModel, service: new () => TService): Promise<void> {
         this._service = new service();
-        this._viewModel = new viewModel();    
+        this._viewModel = new viewModel();
         return Promise.resolve();
     }
 
-    protected dispatch(event: () => void, eventName: string){
+    protected dispatch(event: () => void, eventName: string) {
         event = () => this.dispatchEvent(new Event(eventName));
     }
 }
