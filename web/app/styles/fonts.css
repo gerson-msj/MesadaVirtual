@@ -19,4 +19,5 @@
     word-wrap: normal;
     direction: ltr;
     -webkit-font-smoothing: antialiased;
+    cursor: pointer;
   }

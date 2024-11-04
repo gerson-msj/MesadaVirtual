@@ -1,6 +1,13 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+define("models/event.model", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.headerMenuVisible = exports.headerMenuClick = void 0;
+    exports.headerMenuClick = "headerMenuClick";
+    exports.headerMenuVisible = "headermenuVisible";
+});
 define("components/base/service", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -63,15 +70,29 @@ define("components/base/component", ["require", "exports"], function (require, e
     }
     exports.default = Component;
 });
-define("components/header.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_1, service_1, viewmodel_1) {
+define("components/header.component", ["require", "exports", "models/event.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, event_model_1, component_1, service_1, viewmodel_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_1 = __importDefault(component_1);
     service_1 = __importDefault(service_1);
     viewmodel_1 = __importDefault(viewmodel_1);
     class HeaderViewModel extends viewmodel_1.default {
+        menu;
+        onMenuClick = () => { };
         constructor() {
             super();
+            this.menu = this.getElement("menu");
+            this.menu.addEventListener("click", () => this.onMenuClick());
+            document.addEventListener(event_model_1.headerMenuVisible, (ev) => {
+                const visible = ev.detail;
+            });
+        }
+        menuVisivel(visivel) {
+            const oculto = this.menu.classList.contains("oculto");
+            if (visivel && oculto)
+                this.menu.classList.remove("oculto");
+            else if (!visivel && !oculto)
+                this.menu.classList.add("oculto");
         }
     }
     class HeaderService extends service_1.default {
@@ -85,6 +106,11 @@ define("components/header.component", ["require", "exports", "components/base/co
         }
         async initialize() {
             await this.initializeResources(HeaderViewModel, HeaderService);
+            this.viewModel.onMenuClick = () => document.dispatchEvent(new Event(event_model_1.headerMenuClick));
+            document.addEventListener(event_model_1.headerMenuVisible, (ev) => {
+                const visible = ev.detail;
+                this.viewModel.menuVisivel(visible);
+            });
         }
     }
     exports.default = HeaderComponent;
@@ -330,7 +356,7 @@ define("components/cadastro-responsavel.component", ["require", "exports", "serv
     }
     exports.default = CadastroResponsavelComponent;
 });
-define("components/home.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_5, service_5, viewmodel_5) {
+define("components/home.component", ["require", "exports", "models/event.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, event_model_2, component_5, service_5, viewmodel_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_5 = __importDefault(component_5);
@@ -339,10 +365,28 @@ define("components/home.component", ["require", "exports", "components/base/comp
     class HomeViewModel extends viewmodel_5.default {
         cards;
         cardTemplate;
+        headerMenu;
+        headerMenuBackdrop;
         constructor() {
             super();
             this.cards = this.getElement("cards");
             this.cardTemplate = this.getElement("cardTemplate");
+            this.headerMenu = this.getElement("headerMenu");
+            this.headerMenuBackdrop = this.getElement("headerMenuBackdrop");
+            document.addEventListener(event_model_2.headerMenuClick, () => {
+                this.exibirHeaderMenu();
+            });
+            this.headerMenuBackdrop.addEventListener("click", () => {
+                this.ocutarHeaderMenu();
+            });
+        }
+        exibirHeaderMenu() {
+            this.headerMenu.classList.remove("oculto");
+            this.headerMenuBackdrop.classList.remove("oculto");
+        }
+        ocutarHeaderMenu() {
+            this.headerMenu.classList.add("oculto");
+            this.headerMenuBackdrop.classList.add("oculto");
         }
         apresentarDependentes(cards) {
             const card = this.cardTemplate.innerHTML;
@@ -361,7 +405,7 @@ define("components/home.component", ["require", "exports", "components/base/comp
         }
         async ObterDependentes() {
             const listaDependentes = [];
-            for (let index = 1; index <= 50; index++) {
+            for (let index = 1; index <= 3; index++) {
                 listaDependentes.push({ email: `dep${index}@email.com`, nome: `Dep ${index}`, acumulado: 50, pago: 10, saldo: 40 });
             }
             return Promise.resolve(listaDependentes);
@@ -374,6 +418,7 @@ define("components/home.component", ["require", "exports", "components/base/comp
         async initialize() {
             await this.initializeResources(HomeViewModel, HomeService);
             await this.popularDependentes();
+            document.dispatchEvent(new CustomEvent(event_model_2.headerMenuVisible, { detail: true }));
         }
         async popularDependentes() {
             const listaDependentes = await this.service.ObterDependentes();
