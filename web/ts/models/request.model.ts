@@ -1,4 +1,4 @@
-export interface CadastroResponsavelRequestModel {
+export interface CadastroRespRequestModel {
     nome: string,
     email: string,
     senha: string

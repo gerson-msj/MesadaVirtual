@@ -1,11 +1,11 @@
-import { CadastroResponsavelRequestModel } from "../models/request.model";
+import { CadastroRespRequestModel } from "../models/request.model";
 import { TokenResponseModel } from "../models/response.model";
 import ApiService from "../services/api.service";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
 
-class CadastroResponsavelViewmodel extends ViewModel {
+class CadastroRespViewmodel extends ViewModel {
 
     private nome: HTMLInputElement;
     private _email: HTMLInputElement;
@@ -18,7 +18,7 @@ class CadastroResponsavelViewmodel extends ViewModel {
     public set email(value: string) { this._email.value = value; }
 
     public onVoltar = () => { };
-    public onAvancar = (request: CadastroResponsavelRequestModel) => { };
+    public onAvancar = (request: CadastroRespRequestModel) => { };
 
     constructor() {
         super();
@@ -53,7 +53,7 @@ class CadastroResponsavelViewmodel extends ViewModel {
     }
 }
 
-class CadastroResponsavelService extends Service {
+class CadastroRespService extends Service {
 
     private apiUsuario: ApiService;
 
@@ -62,20 +62,20 @@ class CadastroResponsavelService extends Service {
         this.apiUsuario = new ApiService("usuario");
     }
 
-    cadastrarResponsavel(request: CadastroResponsavelRequestModel): Promise<TokenResponseModel> {
+    cadastrarResp(request: CadastroRespRequestModel): Promise<TokenResponseModel> {
         return this.apiUsuario.doPut<TokenResponseModel>(request);
     }
 }
 
-export default class CadastroResponsavelComponent extends Component<CadastroResponsavelViewmodel, CadastroResponsavelService> {
+export default class CadastroRespComponent extends Component<CadastroRespViewmodel, CadastroRespService> {
 
     constructor() {
-        super("cadastro-responsavel");
+        super("cadastro-resp");
 
     }
 
     async initialize(): Promise<void> {
-        await this.initializeResources(CadastroResponsavelViewmodel, CadastroResponsavelService);
+        await this.initializeResources(CadastroRespViewmodel, CadastroRespService);
 
         this.viewModel.ocultarResult();
 
@@ -84,7 +84,7 @@ export default class CadastroResponsavelComponent extends Component<CadastroResp
 
         this.viewModel.onAvancar = async (request) => {
             try {
-                var tokenResp = await this.service.cadastrarResponsavel(request);
+                var tokenResp = await this.service.cadastrarResp(request);
                 if(tokenResp.token != null){
                     localStorage.setItem("token", tokenResp.token);
                     this.dispatchEvent(new Event("avancar"));
@@ -92,7 +92,7 @@ export default class CadastroResponsavelComponent extends Component<CadastroResp
                     throw new Error(tokenResp.message ?? "Algo deu errado! (⊙_◎)");
                 }
             } catch (error) {
-                console.error("cadastro-responsavel.component onAvancar ", error);
+                console.error("cadastro-resp.component onAvancar ", error);
                 this.viewModel.apresentarResult("Algo deu errado! (⊙_◎)");
             }
         }

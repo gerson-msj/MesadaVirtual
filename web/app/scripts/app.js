@@ -4,10 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 define("models/const.model", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.tokenLSKey = exports.headerMenuVisible = exports.headerMenuClick = exports.PerfilDep = exports.PerfilResp = void 0;
+    exports.tokenLSKey = exports.headerMenuVisible = exports.headerVoltarClick = exports.headerMenuClick = exports.PerfilDep = exports.PerfilResp = void 0;
     exports.PerfilResp = "Resp";
     exports.PerfilDep = "Dep";
     exports.headerMenuClick = "headerMenuClick";
+    exports.headerVoltarClick = "headerVoltarClick";
     exports.headerMenuVisible = "headermenuVisible";
     exports.tokenLSKey = "token";
 });
@@ -97,22 +98,41 @@ define("components/header.component", ["require", "exports", "models/const.model
     service_1 = __importDefault(service_1);
     viewmodel_1 = __importDefault(viewmodel_1);
     class HeaderViewModel extends viewmodel_1.default {
+        icone;
+        titulo;
         menu;
+        cssPointer = "pointer";
+        cssOculto = "oculto";
         onMenuClick = () => { };
+        onVoltarClick = () => { };
         constructor() {
             super();
+            this.icone = this.getElement("icone");
+            this.titulo = this.getElement("titulo");
             this.menu = this.getElement("menu");
             this.menu.addEventListener("click", () => this.onMenuClick());
-            document.addEventListener(const_model_1.headerMenuVisible, (ev) => {
-                const visible = ev.detail;
+            this.icone.addEventListener("click", () => {
+                if (this.icone.innerText == "chevron_left")
+                    this.onVoltarClick();
             });
         }
-        menuVisivel(visivel) {
-            const oculto = this.menu.classList.contains("oculto");
-            if (visivel && oculto)
-                this.menu.classList.remove("oculto");
-            else if (!visivel && !oculto)
-                this.menu.classList.add("oculto");
+        config(headerConfig) {
+            this.titulo.innerText = headerConfig.titulo;
+            if (headerConfig.exibirVoltar) {
+                this.icone.innerText = "chevron_left";
+                if (!this.icone.classList.contains(this.cssPointer))
+                    this.icone.classList.add(this.cssPointer);
+            }
+            else {
+                this.icone.innerText = "currency_exchange";
+                if (this.icone.classList.contains(this.cssPointer))
+                    this.icone.classList.remove(this.cssPointer);
+            }
+            const estaOculto = this.menu.classList.contains(this.cssOculto);
+            if (headerConfig.exibirMenu && estaOculto)
+                this.menu.classList.remove(this.cssOculto);
+            else if (!headerConfig.exibirMenu && !estaOculto)
+                this.menu.classList.add(this.cssOculto);
         }
     }
     class HeaderService extends service_1.default {
@@ -126,11 +146,13 @@ define("components/header.component", ["require", "exports", "models/const.model
         }
         async initialize() {
             await this.initializeResources(HeaderViewModel, HeaderService);
-            this.viewModel.onMenuClick = () => document.dispatchEvent(new Event(const_model_1.headerMenuClick));
-            document.addEventListener(const_model_1.headerMenuVisible, (ev) => {
-                const visible = ev.detail;
-                this.viewModel.menuVisivel(visible);
+            this.viewModel.onMenuClick = () => this.dispatchEvent(new Event(const_model_1.headerMenuClick));
+            this.viewModel.onVoltarClick = () => this.dispatchEvent(new Event(const_model_1.headerVoltarClick));
+            this.addEventListener("config", (ev) => {
+                const headerConfig = ev.detail;
+                this.viewModel.config(headerConfig);
             });
+            this.dispatchEvent(new Event("initialized"));
         }
     }
     exports.default = HeaderComponent;
@@ -168,9 +190,6 @@ define("services/api.service", ["require", "exports"], function (require, export
     Object.defineProperty(exports, "__esModule", { value: true });
     class ApiService {
         baseUrl;
-        /**
-         *
-         */
         constructor(baseUrl) {
             this.baseUrl = `/api/${baseUrl}`;
         }
@@ -286,14 +305,14 @@ define("models/response.model", ["require", "exports"], function (require, expor
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
 });
-define("components/cadastro-responsavel.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, api_service_2, component_4, service_4, viewmodel_4) {
+define("components/cadastro-resp.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, api_service_2, component_4, service_4, viewmodel_4) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     api_service_2 = __importDefault(api_service_2);
     component_4 = __importDefault(component_4);
     service_4 = __importDefault(service_4);
     viewmodel_4 = __importDefault(viewmodel_4);
-    class CadastroResponsavelViewmodel extends viewmodel_4.default {
+    class CadastroRespViewmodel extends viewmodel_4.default {
         nome;
         _email;
         senha;
@@ -332,27 +351,27 @@ define("components/cadastro-responsavel.component", ["require", "exports", "serv
                 this.result.classList.remove("oculto");
         }
     }
-    class CadastroResponsavelService extends service_4.default {
+    class CadastroRespService extends service_4.default {
         apiUsuario;
         constructor() {
             super();
             this.apiUsuario = new api_service_2.default("usuario");
         }
-        cadastrarResponsavel(request) {
+        cadastrarResp(request) {
             return this.apiUsuario.doPut(request);
         }
     }
-    class CadastroResponsavelComponent extends component_4.default {
+    class CadastroRespComponent extends component_4.default {
         constructor() {
-            super("cadastro-responsavel");
+            super("cadastro-resp");
         }
         async initialize() {
-            await this.initializeResources(CadastroResponsavelViewmodel, CadastroResponsavelService);
+            await this.initializeResources(CadastroRespViewmodel, CadastroRespService);
             this.viewModel.ocultarResult();
             this.viewModel.onVoltar = () => this.dispatchEvent(new Event("voltar"));
             this.viewModel.onAvancar = async (request) => {
                 try {
-                    var tokenResp = await this.service.cadastrarResponsavel(request);
+                    var tokenResp = await this.service.cadastrarResp(request);
                     if (tokenResp.token != null) {
                         localStorage.setItem("token", tokenResp.token);
                         this.dispatchEvent(new Event("avancar"));
@@ -362,7 +381,7 @@ define("components/cadastro-responsavel.component", ["require", "exports", "serv
                     }
                 }
                 catch (error) {
-                    console.error("cadastro-responsavel.component onAvancar ", error);
+                    console.error("cadastro-resp.component onAvancar ", error);
                     this.viewModel.apresentarResult("Algo deu errado! (⊙_◎)");
                 }
             };
@@ -374,15 +393,15 @@ define("components/cadastro-responsavel.component", ["require", "exports", "serv
         }
         ;
     }
-    exports.default = CadastroResponsavelComponent;
+    exports.default = CadastroRespComponent;
 });
-define("components/home.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_2, component_5, service_5, viewmodel_5) {
+define("components/resp.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_2, component_5, service_5, viewmodel_5) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_5 = __importDefault(component_5);
     service_5 = __importDefault(service_5);
     viewmodel_5 = __importDefault(viewmodel_5);
-    class HomeViewModel extends viewmodel_5.default {
+    class RespViewModel extends viewmodel_5.default {
         cards;
         cardTemplate;
         headerMenuResp;
@@ -423,7 +442,7 @@ define("components/home.component", ["require", "exports", "models/const.model",
                 .join("");
         }
     }
-    class HomeService extends service_5.default {
+    class RespService extends service_5.default {
         constructor() {
             super();
         }
@@ -435,20 +454,18 @@ define("components/home.component", ["require", "exports", "models/const.model",
             return Promise.resolve(listaDependentes);
         }
     }
-    class HomeComponent extends component_5.default {
+    class RespComponent extends component_5.default {
         constructor() {
-            super("home");
+            super("resp");
         }
         async initialize() {
-            await this.initializeResources(HomeViewModel, HomeService);
+            await this.initializeResources(RespViewModel, RespService);
             if (!this.validarTokenSubject() || this.tokenSubject == null) {
                 this.dispatchEvent(new Event("sair"));
                 return;
             }
             await this.popularDependentes();
-            document.dispatchEvent(new CustomEvent(const_model_2.headerMenuVisible, { detail: true }));
-            this.viewModel.exibirHeaderMenu(this.tokenSubject.perfil);
-            document.addEventListener(const_model_2.headerMenuClick, () => this.viewModel.exibirHeaderMenu(this.tokenSubject.perfil));
+            this.addEventListener(const_model_2.headerMenuClick, () => this.viewModel.exibirHeaderMenu(this.tokenSubject.perfil));
             this.viewModel.onHeaderMenuBackdropClick = () => this.viewModel.ocutarHeaderMenu(this.tokenSubject.perfil);
         }
         async popularDependentes() {
@@ -456,7 +473,7 @@ define("components/home.component", ["require", "exports", "models/const.model",
             this.viewModel.apresentarDependentes(listaDependentes);
         }
     }
-    exports.default = HomeComponent;
+    exports.default = RespComponent;
 });
 define("components/login.component", ["require", "exports", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, api_service_3, component_6, service_6, viewmodel_6) {
     "use strict";
@@ -545,82 +562,156 @@ define("components/login.component", ["require", "exports", "services/api.servic
     }
     exports.default = LoginComponent;
 });
-define("app", ["require", "exports", "components/header.component", "components/index.component", "components/email.component", "components/cadastro-responsavel.component", "components/home.component", "components/login.component"], function (require, exports, header_component_1, index_component_1, email_component_1, cadastro_responsavel_component_1, home_component_1, login_component_1) {
+define("services/token.service", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.default = main;
+    class TokenService {
+        static obterTokenSubject() {
+            try {
+                const token = localStorage.getItem("token");
+                const payload = JSON.parse(atob(token.split(".")[1]));
+                return payload.sub;
+            }
+            catch (error) {
+                return null;
+            }
+        }
+    }
+    exports.default = TokenService;
+});
+define("components/cadastro-dep.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_7, service_7, viewmodel_7) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    component_7 = __importDefault(component_7);
+    service_7 = __importDefault(service_7);
+    viewmodel_7 = __importDefault(viewmodel_7);
+    class CadastroDepViewModel extends viewmodel_7.default {
+        constructor() {
+            super();
+        }
+    }
+    class CadastroDepService extends service_7.default {
+        constructor() {
+            super();
+        }
+    }
+    class CadastroDepComponent extends component_7.default {
+        constructor() {
+            super("cadastro-dep");
+        }
+        async initialize() {
+            await this.initializeResources(CadastroDepViewModel, CadastroDepService);
+        }
+    }
+    exports.default = CadastroDepComponent;
+});
+define("app", ["require", "exports", "components/header.component", "components/index.component", "components/email.component", "components/cadastro-resp.component", "components/resp.component", "components/login.component", "models/const.model", "services/token.service", "components/cadastro-dep.component"], function (require, exports, header_component_1, index_component_1, email_component_1, cadastro_resp_component_1, resp_component_1, login_component_1, const_model_3, token_service_1, cadastro_dep_component_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
     header_component_1 = __importDefault(header_component_1);
     index_component_1 = __importDefault(index_component_1);
     email_component_1 = __importDefault(email_component_1);
-    cadastro_responsavel_component_1 = __importDefault(cadastro_responsavel_component_1);
-    home_component_1 = __importDefault(home_component_1);
+    cadastro_resp_component_1 = __importDefault(cadastro_resp_component_1);
+    resp_component_1 = __importDefault(resp_component_1);
     login_component_1 = __importDefault(login_component_1);
-    const mainElement = document.querySelector("main");
-    const loadedComponents = [];
-    let currentComponent = null;
-    function main() {
-        customElements.define("header-component", header_component_1.default);
-        load();
-    }
-    function load() {
-        const currentComponentName = localStorage.getItem("currentComponentName");
-        switch (currentComponentName) {
-            case "email-component":
-            case "cadastro-responsavel-component":
-            case "login-component":
-                loadEMail();
-                break;
-            case "home-component":
-                LoadHome();
-                break;
-            default:
-                loadIndex();
-                break;
+    token_service_1 = __importDefault(token_service_1);
+    cadastro_dep_component_1 = __importDefault(cadastro_dep_component_1);
+    class App {
+        mainElement;
+        loadedComponents = [];
+        headerComponent;
+        currentComponent = null;
+        constructor() {
+            this.mainElement = document.querySelector("main");
+            this.headerComponent = this.header();
+        }
+        header() {
+            customElements.define("header-component", header_component_1.default);
+            const headerComponent = document.createElement("header-component");
+            const headerElement = document.querySelector("header");
+            headerElement.appendChild(headerComponent);
+            headerComponent.addEventListener(const_model_3.headerMenuClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_3.headerMenuClick)));
+            headerComponent.addEventListener(const_model_3.headerVoltarClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_3.headerVoltarClick)));
+            headerComponent.addEventListener("initialized", () => this.load());
+            return headerComponent;
+        }
+        load() {
+            const currentComponentName = localStorage.getItem("currentComponentName");
+            switch (currentComponentName) {
+                case "email-component":
+                case "cadastro-responsavel-component":
+                case "login-component":
+                    this.email();
+                    break;
+                case "home-component":
+                    this.resp();
+                    break;
+                default:
+                    this.index();
+                    break;
+            }
+        }
+        loadComponent(name, constructor, titulo = null, exibirVoltar = false, exibirMenu = false) {
+            localStorage.setItem("currentComponentName", name);
+            const headerConfig = { titulo: titulo ?? "Mesada Virtual", exibirVoltar: exibirVoltar, exibirMenu: exibirMenu };
+            this.headerComponent.dispatchEvent(new CustomEvent("config", { detail: headerConfig }));
+            if (!this.loadedComponents.includes(name)) {
+                customElements.define(name, constructor);
+                this.loadedComponents.push(name);
+            }
+            this.currentComponent?.remove();
+            this.currentComponent = document.createElement(name);
+            this.mainElement.appendChild(this.currentComponent);
+            return this.currentComponent;
+        }
+        index() {
+            localStorage.clear();
+            const component = this.loadComponent("index-component", index_component_1.default);
+            component.addEventListener("entrar", () => this.email());
+        }
+        email() {
+            const component = this.loadComponent("email-component", email_component_1.default);
+            component.addEventListener("voltar", () => this.index());
+            component.addEventListener("cadastro-responsavel", (ev) => {
+                const email = ev.detail;
+                this.cadastroResp(email);
+            });
+            component.addEventListener("login", (ev) => {
+                const email = ev.detail;
+                this.login(email);
+            });
+        }
+        cadastroResp(email) {
+            const component = this.loadComponent("cadastro-responsavel-component", cadastro_resp_component_1.default);
+            component.addEventListener("voltar", () => this.email());
+            component.addEventListener("avancar", () => this.respOrDep());
+            component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: email })));
+        }
+        login(email) {
+            const component = this.loadComponent("login-component", login_component_1.default);
+            component.addEventListener("voltar", () => this.email());
+            component.addEventListener("avancar", () => this.respOrDep());
+            component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: email })));
+        }
+        respOrDep() {
+            const tokenSubject = token_service_1.default.obterTokenSubject();
+            if (tokenSubject?.perfil == "Resp")
+                this.resp();
+            else if (tokenSubject?.perfil == "Dep")
+                this.index();
+            else
+                this.index();
+        }
+        resp() {
+            const component = this.loadComponent("resp-component", resp_component_1.default, null, false, true);
+            // Abrir Cadastro Dep
+            component.addEventListener("sair", () => this.index());
+        }
+        cadastroDep() {
+            const component = this.loadComponent("dep-component", cadastro_dep_component_1.default, "Adicionar Dependente", true, false);
         }
     }
-    function loadEMail() {
-        const component = loadComponent("email-component", email_component_1.default);
-        component.addEventListener("voltar", () => loadIndex());
-        component.addEventListener("cadastro-responsavel", (ev) => {
-            const email = ev.detail;
-            loadCadastroResponsavel(email);
-        });
-        component.addEventListener("login", (ev) => {
-            const email = ev.detail;
-            loadLogin(email);
-        });
-    }
-    function loadIndex() {
-        localStorage.clear();
-        const component = loadComponent("index-component", index_component_1.default);
-        component.addEventListener("entrar", () => loadEMail());
-    }
-    function loadCadastroResponsavel(email) {
-        const component = loadComponent("cadastro-responsavel-component", cadastro_responsavel_component_1.default);
-        component.addEventListener("voltar", () => loadEMail());
-        component.addEventListener("avancar", () => LoadHome());
-        component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: email })));
-    }
-    function loadLogin(email) {
-        const component = loadComponent("login-component", login_component_1.default);
-        component.addEventListener("voltar", () => loadEMail());
-        component.addEventListener("avancar", () => LoadHome());
-        component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: email })));
-    }
-    function LoadHome() {
-        const component = loadComponent("home-component", home_component_1.default);
-        component.addEventListener("sair", () => loadIndex());
-    }
-    function loadComponent(name, constructor) {
-        if (!loadedComponents.includes(name)) {
-            customElements.define(name, constructor);
-            loadedComponents.push(name);
-        }
-        currentComponent?.remove();
-        currentComponent = document.createElement(name);
-        localStorage.setItem("currentComponentName", name);
-        mainElement.appendChild(currentComponent);
-        return currentComponent;
-    }
+    const main = () => new App();
+    exports.default = main;
 });
 //# sourceMappingURL=app.js.map

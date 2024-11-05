@@ -1,10 +1,10 @@
-import { headerMenuClick, headerMenuVisible, Perfil, tokenLSKey } from "../models/const.model";
+import { headerMenuClick, Perfil } from "../models/const.model";
 import { CardResponseModel } from "../models/response.model";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
 
-class HomeViewModel extends ViewModel {
+class RespViewModel extends ViewModel {
 
     private cards: HTMLDivElement;
     private cardTemplate: HTMLTemplateElement;
@@ -57,7 +57,7 @@ class HomeViewModel extends ViewModel {
     }
 }
 
-class HomeService extends Service {
+class RespService extends Service {
 
     constructor() {
         super();
@@ -72,17 +72,17 @@ class HomeService extends Service {
     }
 }
 
-export default class HomeComponent extends Component<HomeViewModel, HomeService> {
+export default class RespComponent extends Component<RespViewModel, RespService> {
 
 
 
     constructor() {
-        super("home");
+        super("resp");
 
     }
 
     async initialize(): Promise<void> {
-        await this.initializeResources(HomeViewModel, HomeService);
+        await this.initializeResources(RespViewModel, RespService);
 
         if (!this.validarTokenSubject() || this.tokenSubject == null) {
             this.dispatchEvent(new Event("sair"));
@@ -91,11 +91,7 @@ export default class HomeComponent extends Component<HomeViewModel, HomeService>
 
         await this.popularDependentes();
 
-        document.dispatchEvent(new CustomEvent(headerMenuVisible, { detail: true }));
-
-        this.viewModel.exibirHeaderMenu(this.tokenSubject!.perfil);
-
-        document.addEventListener(headerMenuClick, () =>
+        this.addEventListener(headerMenuClick, () =>
             this.viewModel.exibirHeaderMenu(this.tokenSubject!.perfil));
 
         this.viewModel.onHeaderMenuBackdropClick = () => 

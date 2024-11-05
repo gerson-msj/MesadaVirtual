@@ -19,6 +19,12 @@
     display: none !important;
 }
 
+.pointer {
+    cursor: pointer !important;
+}
+
+
+
 /* cards... */
 
 #cards {
@@ -117,6 +123,8 @@ button[type=menu] label {
     padding-bottom: 0;
     cursor: pointer;
 }
+
+
 
 
 

@@ -13,10 +13,11 @@ body {
     gap: 0;
     margin: 0;
     padding: 0;
+    cursor: default;
 }
 
 .layout-header,
-.layout-main,
+.layout,
 .layout-footer {
     width: 100vw;
     display: flex;
@@ -25,7 +26,7 @@ body {
 }
 
 .layout-header-container,
-.layout-main-container,
+.layout-container,
 .layout-footer-container {
     width: 100%;
     max-width: var(--max-width);
@@ -39,7 +40,7 @@ body {
     align-items: center;
 }
 
-.layout-main-container {
+.layout-container {
     height: calc(100vh - var(--header-height) - var(--footer-height));
     overflow-y: auto;
 }
@@ -69,4 +70,5 @@ body {
 .header-item.menu {
     justify-content: end;
     padding-right: 5px;
+    cursor: pointer;
 }

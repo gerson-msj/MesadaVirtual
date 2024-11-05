@@ -1,95 +1,146 @@
-
-import HeaderComponent from "./components/header.component";
+import HeaderComponent, { HeaderConfig } from "./components/header.component";
 import IndexComponent from "./components/index.component";
 import EMailComponent from "./components/email.component";
-import CadastroResponsavelComponent from "./components/cadastro-responsavel.component";
-import HomeComponent from "./components/home.component";
+import CadastroRespComponent from "./components/cadastro-resp.component";
+import RespComponent from "./components/resp.component";
 import LoginComponent from "./components/login.component";
+import { headerMenuClick, headerVoltarClick } from "./models/const.model";
+import TokenService from "./services/token.service";
+import CadastroDepComponent from "./components/cadastro-dep.component";
 
+class App {
+    private mainElement: HTMLElement;
+    private loadedComponents: string[] = [];
+    private headerComponent: HTMLElement;
+    private currentComponent: HTMLElement | null = null;
 
-const mainElement = document.querySelector("main") as HTMLElement;
-const loadedComponents: string[] = [];
+    constructor() {
+        this.mainElement = document.querySelector("main") as HTMLElement;
+        this.headerComponent = this.header();
+    }
 
-let currentComponent: HTMLElement | null = null;
+    private header(): HTMLElement {
+        customElements.define("header-component", HeaderComponent);
+        const headerComponent = document.createElement("header-component");
+        const headerElement = document.querySelector("header") as HTMLElement;
+        headerElement.appendChild(headerComponent);
 
-export default function main() {
-    customElements.define("header-component", HeaderComponent);
-    load();
-}
+        headerComponent.addEventListener(headerMenuClick, () =>
+            this.currentComponent?.dispatchEvent(new Event(headerMenuClick)));
 
-function load() {
-    const currentComponentName = localStorage.getItem("currentComponentName");
-    switch (currentComponentName) {
-        case "email-component":
-        case "cadastro-responsavel-component":
-        case "login-component":
-            loadEMail();
-            break;
-        case "home-component":
-            LoadHome();
-            break;
-        default:
-            loadIndex();
-            break;
+        headerComponent.addEventListener(headerVoltarClick, () =>
+            this.currentComponent?.dispatchEvent(new Event(headerVoltarClick)));
+
+        headerComponent.addEventListener("initialized", () =>
+            this.load());
+
+        return headerComponent;
+    }
+
+    private load() {
+        const currentComponentName = localStorage.getItem("currentComponentName");
+        switch (currentComponentName) {
+            case "email-component":
+            case "cadastro-responsavel-component":
+            case "login-component":
+                this.email();
+                break;
+            case "home-component":
+                this.resp();
+                break;
+            default:
+                this.index();
+                break;
+        }
+    }
+
+    private loadComponent(
+        name: string,
+        constructor: CustomElementConstructor,
+        titulo: string | null = null,
+        exibirVoltar: boolean = false,
+        exibirMenu: boolean = false): HTMLElement {
+
+        localStorage.setItem("currentComponentName", name);
+        const headerConfig: HeaderConfig = { titulo: titulo ?? "Mesada Virtual", exibirVoltar: exibirVoltar, exibirMenu: exibirMenu };
+        this.headerComponent.dispatchEvent(new CustomEvent("config", { detail: headerConfig }));
+
+        if (!this.loadedComponents.includes(name)) {
+            customElements.define(name, constructor);
+            this.loadedComponents.push(name);
+        }
+
+        this.currentComponent?.remove();
+        this.currentComponent = document.createElement(name);
+        this.mainElement.appendChild(this.currentComponent);
+        return this.currentComponent;
+
+    }
+
+    private index() {
+        localStorage.clear();
+        const component = this.loadComponent("index-component", IndexComponent);
+        component.addEventListener("entrar", () => this.email());
+    }
+
+    private email() {
+        const component = this.loadComponent("email-component", EMailComponent);
+        component.addEventListener("voltar", () => this.index());
+        component.addEventListener("cadastro-responsavel", (ev) => {
+            const email: string = (ev as CustomEvent).detail;
+            this.cadastroResp(email);
+        });
+        component.addEventListener("login", (ev) => {
+            const email: string = (ev as CustomEvent).detail;
+            this.login(email);
+        });
+    }
+
+    private cadastroResp(email: string) {
+        const component = this.loadComponent("cadastro-responsavel-component", CadastroRespComponent);
+        component.addEventListener("voltar", () => this.email());
+        component.addEventListener("avancar", () => this.respOrDep());
+
+        component.addEventListener("initialized", () =>
+            component.dispatchEvent(new CustomEvent("initializeData", { detail: email }))
+        );
+    }
+
+    private login(email: string) {
+        const component = this.loadComponent("login-component", LoginComponent);
+        component.addEventListener("voltar", () => this.email());
+        component.addEventListener("avancar", () => this.respOrDep());
+
+        component.addEventListener("initialized", () =>
+            component.dispatchEvent(new CustomEvent("initializeData", { detail: email }))
+        );
+    }
+
+    private respOrDep() {
+        const tokenSubject = TokenService.obterTokenSubject();
+        if (tokenSubject?.perfil == "Resp")
+            this.resp();
+        else if (tokenSubject?.perfil == "Dep")
+            this.index();
+        else
+            this.index();
+    }
+
+    private resp() {
+        const component = this.loadComponent("resp-component", RespComponent, null, false, true);
+
+        // Abrir Cadastro Dep
+
+        component.addEventListener("sair", () =>
+            this.index());
+    }
+
+    private cadastroDep() {
+        const component = this.loadComponent("dep-component", CadastroDepComponent, "Adicionar Dependente", true, false);
     }
 }
 
-function loadEMail() {
-    const component = loadComponent("email-component", EMailComponent);
-    component.addEventListener("voltar", () => loadIndex());
-    component.addEventListener("cadastro-responsavel", (ev) => {
-        const email: string = (ev as CustomEvent).detail;
-        loadCadastroResponsavel(email);
-    });
-    component.addEventListener("login", (ev) => {
-        const email: string = (ev as CustomEvent).detail;
-        loadLogin(email);
-    });
-}
+const main = () => new App();
 
-function loadIndex() {
-    localStorage.clear();
-    const component = loadComponent("index-component", IndexComponent);
-    component.addEventListener("entrar", () => loadEMail());
-}
+export default main;
 
-function loadCadastroResponsavel(email: string) {
-    const component = loadComponent("cadastro-responsavel-component", CadastroResponsavelComponent);
-    component.addEventListener("voltar", () => loadEMail());
-    component.addEventListener("avancar", () => LoadHome());
-
-    component.addEventListener("initialized", () =>
-        component.dispatchEvent(new CustomEvent("initializeData", { detail: email }))
-    );
-}
-
-function loadLogin(email: string) {
-    const component = loadComponent("login-component", LoginComponent);
-    component.addEventListener("voltar", () => loadEMail());
-    component.addEventListener("avancar", () => LoadHome());
-
-    component.addEventListener("initialized", () =>
-        component.dispatchEvent(new CustomEvent("initializeData", { detail: email }))
-    );
-}
-
-function LoadHome() {
-    const component = loadComponent("home-component", HomeComponent);
-
-    component.addEventListener("sair", () => 
-        loadIndex());
-}
-
-function loadComponent(name: string, constructor: CustomElementConstructor): HTMLElement {
-
-    if (!loadedComponents.includes(name)) {
-        customElements.define(name, constructor);
-        loadedComponents.push(name);
-    }
-
-    currentComponent?.remove();
-    currentComponent = document.createElement(name);
-    localStorage.setItem("currentComponentName", name);
-    mainElement.appendChild(currentComponent);
-    return currentComponent;
-}
