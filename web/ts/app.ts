@@ -32,7 +32,10 @@ class App {
             this.currentComponent?.dispatchEvent(new Event(headerVoltarClick)));
 
         headerComponent.addEventListener("initialized", () => {
-            this.load();
+            this.load();            
+            this.currentComponent?.addEventListener("initialized", () => {
+                this.footer();
+            });
         });
 
         return headerComponent;
@@ -79,6 +82,11 @@ class App {
         this.mainElement.appendChild(this.currentComponent);
         return this.currentComponent;
 
+    }
+
+    private footer() {
+        const div = document.querySelector("#footer");
+        div?.classList.remove("oculto");
     }
 
     private index() {

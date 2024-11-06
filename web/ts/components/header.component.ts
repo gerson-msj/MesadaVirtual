@@ -86,7 +86,5 @@ export default class HeaderComponent extends Component<HeaderViewModel, HeaderSe
             const headerConfig = (ev as CustomEvent).detail as HeaderConfig;
             this.viewModel.config(headerConfig);
         });
-
-        this.dispatchEvent(new Event("initialized"));
     }
 }

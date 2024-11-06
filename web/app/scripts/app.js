@@ -56,6 +56,7 @@ define("components/base/component", ["require", "exports"], function (require, e
         async initializeElement() {
             await this.initializeModel();
             await this.initialize();
+            this.dispatchEvent(new Event("initialized"));
         }
         async initializeModel() {
             const requestModel = await fetch(this.modelPath);
@@ -152,7 +153,6 @@ define("components/header.component", ["require", "exports", "models/const.model
                 const headerConfig = ev.detail;
                 this.viewModel.config(headerConfig);
             });
-            this.dispatchEvent(new Event("initialized"));
         }
     }
     exports.default = HeaderComponent;
@@ -389,7 +389,6 @@ define("components/cadastro-resp.component", ["require", "exports", "services/ap
                 const email = ev.detail;
                 this.viewModel.email = email;
             });
-            this.dispatchEvent(new Event("initialized"));
         }
         ;
     }
@@ -473,7 +472,7 @@ define("components/resp.component", ["require", "exports", "models/const.model",
             super("resp");
         }
         async initialize() {
-            await this.initializeResources(RespViewModel, RespService);
+            this.initializeResources(RespViewModel, RespService);
             const tokenSubject = token_service_1.default.obterTokenSubject();
             if (tokenSubject == null) {
                 this.dispatchEvent(new Event("sair"));
@@ -482,7 +481,6 @@ define("components/resp.component", ["require", "exports", "models/const.model",
             await this.popularDependentes();
             this.addEventListener(const_model_2.headerMenuClick, () => this.viewModel.exibirMenu());
             this.viewModel.onMenuBackdrop = () => this.viewModel.ocultarMenu();
-            this;
             this.viewModel.onAdicionarDep = () => this.dispatchEvent(new Event("adicionarDep"));
         }
         async popularDependentes() {
@@ -635,6 +633,9 @@ define("app", ["require", "exports", "components/header.component", "components/
             headerComponent.addEventListener(const_model_4.headerVoltarClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_4.headerVoltarClick)));
             headerComponent.addEventListener("initialized", () => {
                 this.load();
+                this.currentComponent?.addEventListener("initialized", () => {
+                    this.footer();
+                });
             });
             return headerComponent;
         }
@@ -669,6 +670,10 @@ define("app", ["require", "exports", "components/header.component", "components/
             this.currentComponent = document.createElement(name);
             this.mainElement.appendChild(this.currentComponent);
             return this.currentComponent;
+        }
+        footer() {
+            const div = document.querySelector("#footer");
+            div?.classList.remove("oculto");
         }
         index() {
             localStorage.clear();

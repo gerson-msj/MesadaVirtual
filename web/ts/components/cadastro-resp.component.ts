@@ -101,8 +101,6 @@ export default class CadastroRespComponent extends Component<CadastroRespViewmod
             const email: string = (ev as CustomEvent).detail;
             this.viewModel.email = email;
         });
-
-        this.dispatchEvent(new Event("initialized"));
     };
 
 

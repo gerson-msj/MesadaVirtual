@@ -29,6 +29,7 @@ export default abstract class Component<TViewModel extends ViewModel, TService e
     private async initializeElement() {
         await this.initializeModel();
         await this.initialize();
+        this.dispatchEvent(new Event("initialized"));
     }
 
     private async initializeModel() {

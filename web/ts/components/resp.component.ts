@@ -76,7 +76,7 @@ export default class RespComponent extends Component<RespViewModel, RespService>
     }
 
     async initialize(): Promise<void> {
-        await this.initializeResources(RespViewModel, RespService);
+        this.initializeResources(RespViewModel, RespService);
 
         const tokenSubject = TokenService.obterTokenSubject();
         if (tokenSubject == null) {
@@ -92,7 +92,7 @@ export default class RespComponent extends Component<RespViewModel, RespService>
         this.viewModel.onMenuBackdrop = () =>
             this.viewModel.ocultarMenu();
 
-        this;this.viewModel.onAdicionarDep = () =>
+        this.viewModel.onAdicionarDep = () =>
             this.dispatchEvent(new Event("adicionarDep"));
     }
 
