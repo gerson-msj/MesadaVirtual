@@ -1,5 +1,6 @@
-import { headerMenuClick, Perfil } from "../models/const.model";
+import { headerMenuClick } from "../models/const.model";
 import { CardResponseModel } from "../models/response.model";
+import TokenService from "../services/token.service";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
@@ -8,40 +9,36 @@ class RespViewModel extends ViewModel {
 
     private cards: HTMLDivElement;
     private cardTemplate: HTMLTemplateElement;
-    private headerMenuResp: HTMLDivElement;
-    private headerMenuDep: HTMLDivElement;
-    private headerMenuBackdrop: HTMLDivElement;
+    private menuContainer: HTMLDivElement;
+    private menu: HTMLDivElement;
+    private menuBackdrop: HTMLDivElement;
+    private adicionarDep: HTMLButtonElement;
 
-    public onHeaderMenuBackdropClick = () => { };
+    public onMenuBackdrop = () => { };
+    public onAdicionarDep = () => { };
 
     constructor() {
         super();
         this.cards = this.getElement("cards");
         this.cardTemplate = this.getElement("cardTemplate");
-        this.headerMenuResp = this.getElement("headerMenuResp");
-        this.headerMenuDep = this.getElement("headerMenuDep");
-        this.headerMenuBackdrop = this.getElement("headerMenuBackdrop");
+        this.menuContainer = this.getElement("menuContainer");
+        this.menu = this.getElement("menu");
+        this.menuBackdrop = this.getElement("menuBackdrop");
+        this.adicionarDep = this.getElement("adicionarDep");
 
-        this.headerMenuBackdrop.addEventListener("click", () =>
-            this.onHeaderMenuBackdropClick());
+        this.menuBackdrop.addEventListener("click", () =>
+            this.onMenuBackdrop());
+
+        this.adicionarDep.addEventListener("click", () => 
+            this.onAdicionarDep());
     }
 
-    exibirHeaderMenu(perfil: Perfil) {
-        if (perfil == "Resp")
-            this.headerMenuResp.classList.remove("oculto");
-        else
-            this.headerMenuDep.classList.remove("oculto");
-
-        this.headerMenuBackdrop.classList.remove("oculto");
+    exibirMenu() {
+        this.menuContainer.classList.remove("oculto");
     }
 
-    ocutarHeaderMenu(perfil: Perfil) {
-        if (perfil == "Resp")
-            this.headerMenuResp.classList.add("oculto");
-        else
-            this.headerMenuDep.classList.add("oculto");
-
-        this.headerMenuBackdrop.classList.add("oculto");
+    ocultarMenu() {
+        this.menuContainer.classList.add("oculto");
     }
 
     apresentarDependentes(cards: CardResponseModel[]) {
@@ -74,17 +71,15 @@ class RespService extends Service {
 
 export default class RespComponent extends Component<RespViewModel, RespService> {
 
-
-
     constructor() {
         super("resp");
-
     }
 
     async initialize(): Promise<void> {
         await this.initializeResources(RespViewModel, RespService);
 
-        if (!this.validarTokenSubject() || this.tokenSubject == null) {
+        const tokenSubject = TokenService.obterTokenSubject();
+        if (tokenSubject == null) {
             this.dispatchEvent(new Event("sair"));
             return;
         }
@@ -92,10 +87,13 @@ export default class RespComponent extends Component<RespViewModel, RespService>
         await this.popularDependentes();
 
         this.addEventListener(headerMenuClick, () =>
-            this.viewModel.exibirHeaderMenu(this.tokenSubject!.perfil));
+            this.viewModel.exibirMenu());
 
-        this.viewModel.onHeaderMenuBackdropClick = () => 
-            this.viewModel.ocutarHeaderMenu(this.tokenSubject!.perfil);
+        this.viewModel.onMenuBackdrop = () =>
+            this.viewModel.ocultarMenu();
+
+        this;this.viewModel.onAdicionarDep = () =>
+            this.dispatchEvent(new Event("adicionarDep"));
     }
 
     async popularDependentes() {

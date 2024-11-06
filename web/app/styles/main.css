@@ -12,7 +12,7 @@
     --base-font-image-size: 28px;
     --input-invalid-border-color: #ce6262;
 
-    --header-menu-width: 225px;
+    --menu-width: 225px;
 }
 
 .oculto {
@@ -23,7 +23,9 @@
     cursor: pointer !important;
 }
 
-
+h1 {
+    font-size: 18pt;
+}
 
 /* cards... */
 
@@ -67,18 +69,18 @@
 
 /* ...cards */
 
-/* header-menu... */
+/* menu... */
 
-.header-menu {
+.menu-container {
     display: flex;
 }
 
-.header-menu .menu {
+.menu-container .menu {
     position: fixed;
     height: 300px;
     top: 55px;
-    width: var(--header-menu-width);
-    left: calc(50vw + (300px - var(--header-menu-width)));
+    width: var(--menu-width);
+    left: calc(50vw + (300px - var(--menu-width)));
     z-index: 11;
     background-color: #222222f9;
     border-radius: 5px;
@@ -89,12 +91,12 @@
 }
 
 @media screen and (max-width: 600px) {
-    .header-menu .menu {
-        left: calc(50vw + (50vw - var(--header-menu-width)));
+    .menu-container .menu {
+        left: calc(50vw + (50vw - var(--menu-width)));
     }
 }
 
-.header-menu .backdrop {
+.menu-container .backdrop {
     position: fixed;
     height: 100vh;
     top: 0;
@@ -105,7 +107,7 @@
     cursor: pointer;
 }
 
-button[type=menu] {
+.menu-container button[type=menu] {
     width: 100%;
     max-width: none;
     display: flex;
@@ -113,21 +115,15 @@ button[type=menu] {
     align-items: center;
 }
 
-button[type=menu] span {
+.menu-container button[type=menu] span {
     font-size: 24px;
     cursor: pointer;
 }
 
-button[type=menu] label {
+.menu-container button[type=menu] label {
     padding-left: 5px;
     padding-bottom: 0;
     cursor: pointer;
 }
 
-
-
-
-
-
-
-/* ...header-menu */
+/* ...menu */

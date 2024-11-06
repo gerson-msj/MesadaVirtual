@@ -31,8 +31,9 @@ class App {
         headerComponent.addEventListener(headerVoltarClick, () =>
             this.currentComponent?.dispatchEvent(new Event(headerVoltarClick)));
 
-        headerComponent.addEventListener("initialized", () =>
-            this.load());
+        headerComponent.addEventListener("initialized", () => {
+            this.load();
+        });
 
         return headerComponent;
     }
@@ -41,12 +42,15 @@ class App {
         const currentComponentName = localStorage.getItem("currentComponentName");
         switch (currentComponentName) {
             case "email-component":
-            case "cadastro-responsavel-component":
+            case "cadastro-resp-component":
             case "login-component":
                 this.email();
                 break;
-            case "home-component":
+            case "resp-component":
                 this.resp();
+                break;
+            case "cadastro-dep-component":
+                this.cadastroDep();
                 break;
             default:
                 this.index();
@@ -97,7 +101,7 @@ class App {
     }
 
     private cadastroResp(email: string) {
-        const component = this.loadComponent("cadastro-responsavel-component", CadastroRespComponent);
+        const component = this.loadComponent("cadastro-resp-component", CadastroRespComponent);
         component.addEventListener("voltar", () => this.email());
         component.addEventListener("avancar", () => this.respOrDep());
 
@@ -129,14 +133,18 @@ class App {
     private resp() {
         const component = this.loadComponent("resp-component", RespComponent, null, false, true);
 
-        // Abrir Cadastro Dep
+        component.addEventListener("adicionarDep", () => 
+            this.cadastroDep());
 
         component.addEventListener("sair", () =>
             this.index());
     }
 
     private cadastroDep() {
-        const component = this.loadComponent("dep-component", CadastroDepComponent, "Adicionar Dependente", true, false);
+        const component = this.loadComponent("cadastro-dep-component", CadastroDepComponent, "Adicionar Dependente", true, false);
+
+        component.addEventListener("voltar", () => 
+            this.resp());
     }
 }
 

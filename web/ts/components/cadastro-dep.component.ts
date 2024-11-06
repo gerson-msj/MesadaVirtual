@@ -1,3 +1,4 @@
+import { headerVoltarClick } from "../models/const.model";
 import Component from "./base/component";
 import Service from "./base/service";
 import ViewModel from "./base/viewmodel";
@@ -22,5 +23,8 @@ export default class CadastroDepComponent extends Component<CadastroDepViewModel
 
     async initialize(): Promise<void> {
         await this.initializeResources(CadastroDepViewModel, CadastroDepService);
+
+        this.addEventListener(headerVoltarClick, () => 
+            this.dispatchEvent(new Event("voltar")));
     }
 }

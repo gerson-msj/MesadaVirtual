@@ -6,10 +6,9 @@
             <h1>Home</h1>
             <div id="cards"></div>
 
-
-            <section class="header-menu">
-                <div id="headerMenuResp" class="menu oculto">
-                    <button type="menu">
+            <div id="menuContainer" class="menu-container oculto">
+                <div id="menu" class="menu">
+                    <button id="adicionarDep" type="menu">
                         <span class="material-symbols-rounded">
                             person_add
                         </span>
@@ -27,13 +26,10 @@
                         </span>
                         <label>Sair</label>
                     </button>
+                </div>
 
-                </div>
-                <div id="headerMenuDep" class="menu oculto">
-                    opções Dep
-                </div>
-                <div id="headerMenuBackdrop" class="backdrop oculto"></div>
-            </section>
+                <div id="menuBackdrop" class="backdrop"></div>
+            </div>
 
             <template id="cardTemplate">
 
@@ -42,7 +38,7 @@
                         <div>
                             <span>{nome}</span>
                             <span class="material-symbols-rounded">
-                                menu
+                                more_vert
                             </span>
                         </div>
                     </caption>

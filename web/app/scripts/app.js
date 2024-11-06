@@ -395,41 +395,55 @@ define("components/cadastro-resp.component", ["require", "exports", "services/ap
     }
     exports.default = CadastroRespComponent;
 });
-define("components/resp.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_2, component_5, service_5, viewmodel_5) {
+define("services/token.service", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    class TokenService {
+        static obterTokenSubject() {
+            try {
+                const token = localStorage.getItem("token");
+                const payload = JSON.parse(atob(token.split(".")[1]));
+                return payload.sub;
+            }
+            catch (error) {
+                return null;
+            }
+        }
+    }
+    exports.default = TokenService;
+});
+define("components/resp.component", ["require", "exports", "models/const.model", "services/token.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_2, token_service_1, component_5, service_5, viewmodel_5) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    token_service_1 = __importDefault(token_service_1);
     component_5 = __importDefault(component_5);
     service_5 = __importDefault(service_5);
     viewmodel_5 = __importDefault(viewmodel_5);
     class RespViewModel extends viewmodel_5.default {
         cards;
         cardTemplate;
-        headerMenuResp;
-        headerMenuDep;
-        headerMenuBackdrop;
-        onHeaderMenuBackdropClick = () => { };
+        menuContainer;
+        menu;
+        menuBackdrop;
+        adicionarDep;
+        onMenuBackdrop = () => { };
+        onAdicionarDep = () => { };
         constructor() {
             super();
             this.cards = this.getElement("cards");
             this.cardTemplate = this.getElement("cardTemplate");
-            this.headerMenuResp = this.getElement("headerMenuResp");
-            this.headerMenuDep = this.getElement("headerMenuDep");
-            this.headerMenuBackdrop = this.getElement("headerMenuBackdrop");
-            this.headerMenuBackdrop.addEventListener("click", () => this.onHeaderMenuBackdropClick());
+            this.menuContainer = this.getElement("menuContainer");
+            this.menu = this.getElement("menu");
+            this.menuBackdrop = this.getElement("menuBackdrop");
+            this.adicionarDep = this.getElement("adicionarDep");
+            this.menuBackdrop.addEventListener("click", () => this.onMenuBackdrop());
+            this.adicionarDep.addEventListener("click", () => this.onAdicionarDep());
         }
-        exibirHeaderMenu(perfil) {
-            if (perfil == "Resp")
-                this.headerMenuResp.classList.remove("oculto");
-            else
-                this.headerMenuDep.classList.remove("oculto");
-            this.headerMenuBackdrop.classList.remove("oculto");
+        exibirMenu() {
+            this.menuContainer.classList.remove("oculto");
         }
-        ocutarHeaderMenu(perfil) {
-            if (perfil == "Resp")
-                this.headerMenuResp.classList.add("oculto");
-            else
-                this.headerMenuDep.classList.add("oculto");
-            this.headerMenuBackdrop.classList.add("oculto");
+        ocultarMenu() {
+            this.menuContainer.classList.add("oculto");
         }
         apresentarDependentes(cards) {
             const card = this.cardTemplate.innerHTML;
@@ -460,13 +474,16 @@ define("components/resp.component", ["require", "exports", "models/const.model",
         }
         async initialize() {
             await this.initializeResources(RespViewModel, RespService);
-            if (!this.validarTokenSubject() || this.tokenSubject == null) {
+            const tokenSubject = token_service_1.default.obterTokenSubject();
+            if (tokenSubject == null) {
                 this.dispatchEvent(new Event("sair"));
                 return;
             }
             await this.popularDependentes();
-            this.addEventListener(const_model_2.headerMenuClick, () => this.viewModel.exibirHeaderMenu(this.tokenSubject.perfil));
-            this.viewModel.onHeaderMenuBackdropClick = () => this.viewModel.ocutarHeaderMenu(this.tokenSubject.perfil);
+            this.addEventListener(const_model_2.headerMenuClick, () => this.viewModel.exibirMenu());
+            this.viewModel.onMenuBackdrop = () => this.viewModel.ocultarMenu();
+            this;
+            this.viewModel.onAdicionarDep = () => this.dispatchEvent(new Event("adicionarDep"));
         }
         async popularDependentes() {
             const listaDependentes = await this.service.ObterDependentes();
@@ -562,24 +579,7 @@ define("components/login.component", ["require", "exports", "services/api.servic
     }
     exports.default = LoginComponent;
 });
-define("services/token.service", ["require", "exports"], function (require, exports) {
-    "use strict";
-    Object.defineProperty(exports, "__esModule", { value: true });
-    class TokenService {
-        static obterTokenSubject() {
-            try {
-                const token = localStorage.getItem("token");
-                const payload = JSON.parse(atob(token.split(".")[1]));
-                return payload.sub;
-            }
-            catch (error) {
-                return null;
-            }
-        }
-    }
-    exports.default = TokenService;
-});
-define("components/cadastro-dep.component", ["require", "exports", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, component_7, service_7, viewmodel_7) {
+define("components/cadastro-dep.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_3, component_7, service_7, viewmodel_7) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     component_7 = __importDefault(component_7);
@@ -601,11 +601,12 @@ define("components/cadastro-dep.component", ["require", "exports", "components/b
         }
         async initialize() {
             await this.initializeResources(CadastroDepViewModel, CadastroDepService);
+            this.addEventListener(const_model_3.headerVoltarClick, () => this.dispatchEvent(new Event("voltar")));
         }
     }
     exports.default = CadastroDepComponent;
 });
-define("app", ["require", "exports", "components/header.component", "components/index.component", "components/email.component", "components/cadastro-resp.component", "components/resp.component", "components/login.component", "models/const.model", "services/token.service", "components/cadastro-dep.component"], function (require, exports, header_component_1, index_component_1, email_component_1, cadastro_resp_component_1, resp_component_1, login_component_1, const_model_3, token_service_1, cadastro_dep_component_1) {
+define("app", ["require", "exports", "components/header.component", "components/index.component", "components/email.component", "components/cadastro-resp.component", "components/resp.component", "components/login.component", "models/const.model", "services/token.service", "components/cadastro-dep.component"], function (require, exports, header_component_1, index_component_1, email_component_1, cadastro_resp_component_1, resp_component_1, login_component_1, const_model_4, token_service_2, cadastro_dep_component_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     header_component_1 = __importDefault(header_component_1);
@@ -614,7 +615,7 @@ define("app", ["require", "exports", "components/header.component", "components/
     cadastro_resp_component_1 = __importDefault(cadastro_resp_component_1);
     resp_component_1 = __importDefault(resp_component_1);
     login_component_1 = __importDefault(login_component_1);
-    token_service_1 = __importDefault(token_service_1);
+    token_service_2 = __importDefault(token_service_2);
     cadastro_dep_component_1 = __importDefault(cadastro_dep_component_1);
     class App {
         mainElement;
@@ -630,21 +631,26 @@ define("app", ["require", "exports", "components/header.component", "components/
             const headerComponent = document.createElement("header-component");
             const headerElement = document.querySelector("header");
             headerElement.appendChild(headerComponent);
-            headerComponent.addEventListener(const_model_3.headerMenuClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_3.headerMenuClick)));
-            headerComponent.addEventListener(const_model_3.headerVoltarClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_3.headerVoltarClick)));
-            headerComponent.addEventListener("initialized", () => this.load());
+            headerComponent.addEventListener(const_model_4.headerMenuClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_4.headerMenuClick)));
+            headerComponent.addEventListener(const_model_4.headerVoltarClick, () => this.currentComponent?.dispatchEvent(new Event(const_model_4.headerVoltarClick)));
+            headerComponent.addEventListener("initialized", () => {
+                this.load();
+            });
             return headerComponent;
         }
         load() {
             const currentComponentName = localStorage.getItem("currentComponentName");
             switch (currentComponentName) {
                 case "email-component":
-                case "cadastro-responsavel-component":
+                case "cadastro-resp-component":
                 case "login-component":
                     this.email();
                     break;
-                case "home-component":
+                case "resp-component":
                     this.resp();
+                    break;
+                case "cadastro-dep-component":
+                    this.cadastroDep();
                     break;
                 default:
                     this.index();
@@ -682,7 +688,7 @@ define("app", ["require", "exports", "components/header.component", "components/
             });
         }
         cadastroResp(email) {
-            const component = this.loadComponent("cadastro-responsavel-component", cadastro_resp_component_1.default);
+            const component = this.loadComponent("cadastro-resp-component", cadastro_resp_component_1.default);
             component.addEventListener("voltar", () => this.email());
             component.addEventListener("avancar", () => this.respOrDep());
             component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: email })));
@@ -694,7 +700,7 @@ define("app", ["require", "exports", "components/header.component", "components/
             component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: email })));
         }
         respOrDep() {
-            const tokenSubject = token_service_1.default.obterTokenSubject();
+            const tokenSubject = token_service_2.default.obterTokenSubject();
             if (tokenSubject?.perfil == "Resp")
                 this.resp();
             else if (tokenSubject?.perfil == "Dep")
@@ -704,11 +710,12 @@ define("app", ["require", "exports", "components/header.component", "components/
         }
         resp() {
             const component = this.loadComponent("resp-component", resp_component_1.default, null, false, true);
-            // Abrir Cadastro Dep
+            component.addEventListener("adicionarDep", () => this.cadastroDep());
             component.addEventListener("sair", () => this.index());
         }
         cadastroDep() {
-            const component = this.loadComponent("dep-component", cadastro_dep_component_1.default, "Adicionar Dependente", true, false);
+            const component = this.loadComponent("cadastro-dep-component", cadastro_dep_component_1.default, "Adicionar Dependente", true, false);
+            component.addEventListener("voltar", () => this.resp());
         }
     }
     const main = () => new App();
