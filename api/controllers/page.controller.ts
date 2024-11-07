@@ -3,7 +3,19 @@ import { join } from "@std/path/join";
 import Controller from "./base/controller.ts";
 import Context from "./base/context.ts";
 
-export default class PageController extends Controller {
+class PageService {
+
+    filePath(basePath: string | undefined, pathName: string): string {
+        const pageDir = join(Deno.cwd(), basePath ?? "web", "app");
+        let filePath = pathName.includes(".") ? join(pageDir, pathName) : pageDir;
+        if (Deno.statSync(filePath).isDirectory)
+            filePath = join(filePath, "index.html");
+
+        return filePath
+    }
+}
+
+export default class PageController extends Controller<PageService> {
 
     private basePath: string | undefined;
 
@@ -12,23 +24,19 @@ export default class PageController extends Controller {
         this.basePath = basePath;
     }
 
-    public async handle(context: Context): Promise<Response> {
+    public handle(context: Context): Promise<Response> {
+
         if (context.isApiRequest)
             return super.nextHandle(context);
 
-        const pageDir = join(Deno.cwd(), this.basePath ?? "web", "app");
-        let filePath = context.url.pathname.includes(".") ? join(pageDir, context.url.pathname) : pageDir;
-
-        try {
-            if (Deno.statSync(filePath).isDirectory)
-                filePath = join(filePath, "index.html");
-
-            const response = await serveFile(context.request, filePath);
-            return response;
-
+        this.service = new PageService();
+        const filePath = this.service.filePath(this.basePath, context.url.pathname);
+        
+        try {    
+            return serveFile(context.request, filePath);
         } catch (error) {
             console.error(error);
-            return new Response("¯\_(ツ)_/¯", { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
+            return Promise.resolve(new Response("¯\_(ツ)_/¯", { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } }));
         }
     }
 

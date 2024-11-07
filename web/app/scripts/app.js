@@ -577,18 +577,33 @@ define("components/login.component", ["require", "exports", "services/api.servic
     }
     exports.default = LoginComponent;
 });
-define("components/cadastro-dep.component", ["require", "exports", "models/const.model", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_3, component_7, service_7, viewmodel_7) {
+define("components/cadastro-dep.component", ["require", "exports", "models/const.model", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_3, api_service_4, component_7, service_7, viewmodel_7) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    api_service_4 = __importDefault(api_service_4);
     component_7 = __importDefault(component_7);
     service_7 = __importDefault(service_7);
     viewmodel_7 = __importDefault(viewmodel_7);
     class CadastroDepViewModel extends viewmodel_7.default {
+        nome = this.getElement("nome");
+        email = this.getElement("email");
+        senha = this.getElement("senha");
+        mesada = this.getElement("mesada");
+        adicionar = this.getElement("adicionar");
+        result = this.getElement("result");
+        onAdicionar = (cadastroDep) => { };
         constructor() {
             super();
+            this.adicionar.addEventListener("click", () => this.onAdicionar({
+                nome: this.nome.value,
+                email: this.email.value,
+                senha: this.senha.value,
+                mesada: Number(this.mesada.value)
+            }));
         }
     }
     class CadastroDepService extends service_7.default {
+        apiDep = new api_service_4.default("dep");
         constructor() {
             super();
         }

@@ -1,6 +1,6 @@
 import Controller from "./base/controller.ts";
 import Context from "./base/context.ts";
-import type { CadastroResponsavelRequestModel, LoginRequestModel } from "../../web/ts/models/request.model.ts";
+import type { CadastroRespRequestModel, LoginRequestModel } from "../../web/ts/models/request.model.ts";
 import { PerfilDep, PerfilResp, type ResponsavelDbModel } from "../models/db.model.ts";
 import type { TokenResponseModel, TokenSubject, UsuarioExistenteResponseModel } from "../models/response.model.ts";
 import ServerCrypt from "../services/server.crypt.ts";
@@ -8,17 +8,17 @@ import type { DependenteDbModel, Perfil, UsuarioDbModel } from "../models/db.mod
 
 class UsuarioService {
 
-    private db: Deno.Kv | undefined;
-    private crypt: ServerCrypt | undefined;
+    private db: Deno.Kv;
+    private crypt: ServerCrypt;
 
-    init(db: Deno.Kv) {
+    constructor(db: Deno.Kv) {
         this.db = db;
         this.crypt = new ServerCrypt();
     }
 
     async usuarioExistente(email: string | null): Promise<UsuarioExistenteResponseModel> {
 
-        const result = await this.db?.getMany([
+        const result = await this.db.getMany([
             [PerfilResp, email ?? ""],
             [PerfilDep, email ?? ""]
         ]);
@@ -26,7 +26,7 @@ class UsuarioService {
         return { usuarioExistente: result?.some(r => r.value != null) ?? false };
     }
 
-    async cadastrarResponsavel(request: CadastroResponsavelRequestModel): Promise<TokenResponseModel> {
+    async cadastrarResponsavel(request: CadastroRespRequestModel): Promise<TokenResponseModel> {
 
         const usuarioExistenteResponse = await this.usuarioExistente(request.email);
 
@@ -42,12 +42,12 @@ class UsuarioService {
             dependentes: []
         };
 
-        const result = await this.db!.set([PerfilResp, request.email], responsavel);
+        const result = await this.db.set([PerfilResp, request.email], responsavel);
         if (!result.ok)
             return { token: null, message: "Sistema indisponível no momento." };
 
         const sub: TokenSubject = { email: request.email, perfil: "Resp" };
-        const token = await this.crypt!.criarToken(sub);
+        const token = await this.crypt.criarToken(sub);
         return { token: token, message: "Cadastro Ok." };
 
     }
@@ -57,7 +57,7 @@ class UsuarioService {
         let usuario: UsuarioDbModel | undefined;
         let perfil: Perfil = PerfilResp;
 
-        const usuarios = await this.db!.getMany([
+        const usuarios = await this.db.getMany([
             [PerfilResp, request.email ?? ""],
             [PerfilDep, request.email ?? ""]
         ]);
@@ -75,27 +75,20 @@ class UsuarioService {
             return { token: null, message: "O email informado não está cadastrado." };
         }
 
-        const senhaValida = await this.crypt!.validarSenha(request.senha, usuario.senha);
+        const senhaValida = await this.crypt.validarSenha(request.senha, usuario.senha);
 
         if (!senhaValida) {
             return { token: null, message: "A senha informada é inválida." };
         }
 
         const sub: TokenSubject = { email: request.email, perfil: perfil };
-        const token = await this.crypt!.criarToken(sub);
+        const token = await this.crypt.criarToken(sub);
         return { token: token, message: "Login Ok." };
     }
 
 }
 
-export default class UsuarioController extends Controller {
-
-    private service: UsuarioService;
-
-    constructor() {
-        super();
-        this.service = new UsuarioService();
-    }
+export default class UsuarioController extends Controller<UsuarioService> {
 
     public override async handle(context: Context): Promise<Response> {
 
@@ -104,7 +97,7 @@ export default class UsuarioController extends Controller {
 
         if (["GET", "PUT", "POST"].includes(context.request.method)) {
             const db = await context.getDb();
-            this.service.init(db);
+            this.service = new UsuarioService(db);
         } else {
             return context.notAllowed();
         }
@@ -117,7 +110,7 @@ export default class UsuarioController extends Controller {
             }
 
             case "PUT": {
-                const request: CadastroResponsavelRequestModel = await context.request.json();
+                const request: CadastroRespRequestModel = await context.request.json();
                 const response: TokenResponseModel = await this.service.cadastrarResponsavel(request);
                 return context.ok(response);
             }
