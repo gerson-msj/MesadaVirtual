@@ -9,7 +9,7 @@ export interface LoginRequestModel {
     senha: string
 }
 
-export interface CadastroDepModel {
+export interface CadastroDepRequestModel {
     nome: string,
     email: string,
     senha: string,

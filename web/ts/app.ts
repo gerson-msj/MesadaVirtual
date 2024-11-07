@@ -16,6 +16,8 @@ class App {
 
     constructor() {
         this.mainElement = document.querySelector("main") as HTMLElement;
+        document.addEventListener("unauthorized", () => 
+            this.index());
         this.headerComponent = this.header();
     }
 

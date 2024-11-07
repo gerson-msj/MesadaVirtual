@@ -25,6 +25,9 @@ export default class DepController extends Controller<DepService> {
         if (context.url.pathname != "/api/dep")
             return this.nextHandle(context);
 
+        if (context.tokenSub?.perfil != "Resp")
+            return context.unauthorized();
+
         if (["PUT"].includes(context.request.method)) {
             const db = await context.getDb();
             this.service = new DepService(db);
@@ -35,7 +38,6 @@ export default class DepController extends Controller<DepService> {
         switch (context.request.method) {
             case "PUT": {
                 const request: CadastroDepRequestModel = await context.request.json();
-                console.log("Request:", request)
                 const message = await this.service.cadastrarDep(request);
                 return message == null ? context.ok({}) : context.badRequest(message);
             }

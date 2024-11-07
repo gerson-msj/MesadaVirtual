@@ -197,7 +197,7 @@ define("services/api.service", ["require", "exports"], function (require, export
             const url = searchParams ? `${this.baseUrl}?${searchParams}` : this.baseUrl;
             const response = await fetch(url, {
                 method: "GET",
-                headers: this.getHeaders(bearer)
+                headers: this.getHeaders()
             });
             if (response.ok) {
                 const data = await response.json();
@@ -210,32 +210,38 @@ define("services/api.service", ["require", "exports"], function (require, export
         async doPost(obj, bearer = null) {
             const response = await fetch(this.baseUrl, {
                 method: "POST",
-                headers: this.getHeaders(bearer),
+                headers: this.getHeaders(),
                 body: JSON.stringify(obj)
             });
             const data = await response.json();
             return data;
         }
-        async doPut(obj, bearer = null) {
+        async doPut(request) {
             const response = await fetch(this.baseUrl, {
                 method: "PUT",
-                headers: this.getHeaders(bearer),
-                body: JSON.stringify(obj)
+                headers: this.getHeaders(),
+                body: JSON.stringify(request)
             });
+            return this.getResult(response);
+        }
+        async getResult(response) {
             if (response.ok) {
                 const data = await response.json();
                 return data;
             }
             else {
+                if (response.status == 401)
+                    document.dispatchEvent(new Event("unauthorized"));
                 const error = await response.json();
                 console.log("Erro:", error);
-                throw new Error(response.statusText);
+                throw new Error(error?.message ?? response.statusText);
             }
         }
-        getHeaders(bearer) {
+        getHeaders() {
+            const token = localStorage.getItem("token");
             const headers = { "content-type": "application/json; charset=utf-8" };
-            if (bearer !== null)
-                headers["authorization"] = `Bearer ${bearer}`;
+            if (token !== null)
+                headers["authorization"] = `Bearer ${token}`;
             return headers;
         }
     }
@@ -398,6 +404,14 @@ define("services/token.service", ["require", "exports"], function (require, expo
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     class TokenService {
+        static VerificarToken(perfil) {
+            const tokenSub = this.obterTokenSubject();
+            if (tokenSub == null || tokenSub.perfil != perfil) {
+                document.dispatchEvent(new Event("unauthorized"));
+                return false;
+            }
+            return true;
+        }
         static obterTokenSubject() {
             try {
                 const token = localStorage.getItem("token");
@@ -577,10 +591,11 @@ define("components/login.component", ["require", "exports", "services/api.servic
     }
     exports.default = LoginComponent;
 });
-define("components/cadastro-dep.component", ["require", "exports", "models/const.model", "services/api.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_3, api_service_4, component_7, service_7, viewmodel_7) {
+define("components/cadastro-dep.component", ["require", "exports", "models/const.model", "services/api.service", "services/token.service", "components/base/component", "components/base/service", "components/base/viewmodel"], function (require, exports, const_model_3, api_service_4, token_service_2, component_7, service_7, viewmodel_7) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     api_service_4 = __importDefault(api_service_4);
+    token_service_2 = __importDefault(token_service_2);
     component_7 = __importDefault(component_7);
     service_7 = __importDefault(service_7);
     viewmodel_7 = __importDefault(viewmodel_7);
@@ -601,11 +616,15 @@ define("components/cadastro-dep.component", ["require", "exports", "models/const
                 mesada: Number(this.mesada.value)
             }));
         }
+        ApresentarErro(error) {
+            this.result.innerText = error.message ?? "Algo deu errado! (⊙_◎)";
+            this.result.classList.remove("oculto");
+        }
     }
     class CadastroDepService extends service_7.default {
-        apiDep = new api_service_4.default("dep");
-        constructor() {
-            super();
+        api = new api_service_4.default("dep");
+        cadastrar(cadastroDep) {
+            return this.api.doPut(cadastroDep);
         }
     }
     class CadastroDepComponent extends component_7.default {
@@ -613,13 +632,24 @@ define("components/cadastro-dep.component", ["require", "exports", "models/const
             super("cadastro-dep");
         }
         async initialize() {
+            if (!token_service_2.default.VerificarToken("Resp"))
+                return;
             await this.initializeResources(CadastroDepViewModel, CadastroDepService);
             this.addEventListener(const_model_3.headerVoltarClick, () => this.dispatchEvent(new Event("voltar")));
+            this.viewModel.onAdicionar = async (cadastroDep) => {
+                try {
+                    await this.service.cadastrar(cadastroDep);
+                }
+                catch (error) {
+                    console.log("Erro onAdicionar:", error);
+                    this.viewModel.ApresentarErro(error);
+                }
+            };
         }
     }
     exports.default = CadastroDepComponent;
 });
-define("app", ["require", "exports", "components/header.component", "components/index.component", "components/email.component", "components/cadastro-resp.component", "components/resp.component", "components/login.component", "models/const.model", "services/token.service", "components/cadastro-dep.component"], function (require, exports, header_component_1, index_component_1, email_component_1, cadastro_resp_component_1, resp_component_1, login_component_1, const_model_4, token_service_2, cadastro_dep_component_1) {
+define("app", ["require", "exports", "components/header.component", "components/index.component", "components/email.component", "components/cadastro-resp.component", "components/resp.component", "components/login.component", "models/const.model", "services/token.service", "components/cadastro-dep.component"], function (require, exports, header_component_1, index_component_1, email_component_1, cadastro_resp_component_1, resp_component_1, login_component_1, const_model_4, token_service_3, cadastro_dep_component_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     header_component_1 = __importDefault(header_component_1);
@@ -628,7 +658,7 @@ define("app", ["require", "exports", "components/header.component", "components/
     cadastro_resp_component_1 = __importDefault(cadastro_resp_component_1);
     resp_component_1 = __importDefault(resp_component_1);
     login_component_1 = __importDefault(login_component_1);
-    token_service_2 = __importDefault(token_service_2);
+    token_service_3 = __importDefault(token_service_3);
     cadastro_dep_component_1 = __importDefault(cadastro_dep_component_1);
     class App {
         mainElement;
@@ -637,6 +667,7 @@ define("app", ["require", "exports", "components/header.component", "components/
         currentComponent = null;
         constructor() {
             this.mainElement = document.querySelector("main");
+            document.addEventListener("unauthorized", () => this.index());
             this.headerComponent = this.header();
         }
         header() {
@@ -720,7 +751,7 @@ define("app", ["require", "exports", "components/header.component", "components/
             component.addEventListener("initialized", () => component.dispatchEvent(new CustomEvent("initializeData", { detail: email })));
         }
         respOrDep() {
-            const tokenSubject = token_service_2.default.obterTokenSubject();
+            const tokenSubject = token_service_3.default.obterTokenSubject();
             if (tokenSubject?.perfil == "Resp")
                 this.resp();
             else if (tokenSubject?.perfil == "Dep")

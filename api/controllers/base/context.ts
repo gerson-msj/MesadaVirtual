@@ -1,3 +1,4 @@
+import { TokenSubject } from "../../models/response.model.ts";
 import ServerCrypt from "../../services/server.crypt.ts";
 
 export default class Context {
@@ -9,8 +10,7 @@ export default class Context {
     private _kv: Deno.Kv | null = null;
     public get kv() { return this._kv!; }
 
-    private _nomeHash: string | null = null;
-    public get nomeHash() { return this._nomeHash; }
+    public tokenSub: TokenSubject | null = null;
 
     public get isApiRequest(): boolean {
         return this.url.pathname.startsWith("/api");
@@ -34,7 +34,7 @@ export default class Context {
     public async auth(): Promise<boolean> {
 
         try {
-            this._nomeHash = null;
+            this.tokenSub = null;
 
             const auth = this.request.headers.get("authorization");
             if (auth == null)
@@ -42,9 +42,12 @@ export default class Context {
 
             const token = auth.split(" ")[1];
             if (await this.crypt.tokenValido(token) && !this.crypt.tokenExpirado(token))
-                this._nomeHash = this.crypt.tokenSub(token);
-
-            return true;
+                this.tokenSub = this.crypt.tokenSub(token);
+                
+            return this.tokenSub != null
+                && this.tokenSub.email != ''
+                && (this.tokenSub.perfil == "Resp" || this.tokenSub.perfil == "Dep");
+                
         } catch (error) {
             console.error("auth", error);
             return false;

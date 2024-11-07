@@ -11,7 +11,7 @@ export default class ApiService {
 
         const response = await fetch(url, {
             method: "GET",
-            headers: this.getHeaders(bearer)
+            headers: this.getHeaders()
         });
 
         if(response.ok){
@@ -26,7 +26,7 @@ export default class ApiService {
 
         const response = await fetch(this.baseUrl, {
             method: "POST",
-            headers: this.getHeaders(bearer),
+            headers: this.getHeaders(),
             body: JSON.stringify(obj)
         });
 
@@ -34,30 +34,37 @@ export default class ApiService {
         return data;
     }
 
-    public async doPut<TResult>(obj: object, bearer: string | null = null): Promise<TResult> {
+    public async doPut<TResult>(request: object): Promise<TResult> {
 
         const response = await fetch(this.baseUrl, {
             method: "PUT",
-            headers: this.getHeaders(bearer),
-            body: JSON.stringify(obj)
+            headers: this.getHeaders(),
+            body: JSON.stringify(request)
         });
 
+        return this.getResult(response);
+    }
+
+    private async getResult<TResult>(response: Response) : Promise<TResult> {
         if(response.ok){
             const data: TResult = await response.json();
             return data;
         } else {
-            const error: TResult = await response.json();
+            if(response.status == 401)
+                document.dispatchEvent(new Event("unauthorized"));
+            
+            const error = await response.json();
             console.log("Erro:", error);
-            throw new Error(response.statusText);
+            throw new Error(error?.message ?? response.statusText);
         }
     }
 
-    private getHeaders(bearer: string | null): Record<string, string> {
-
+    private getHeaders(): Record<string, string> {
+        const token = localStorage.getItem("token");
         const headers: Record<string, string> = { "content-type": "application/json; charset=utf-8" };
 
-        if (bearer !== null)
-            headers["authorization"] = `Bearer ${bearer}`;
+        if (token !== null)
+            headers["authorization"] = `Bearer ${token}`;
 
         return headers;
     }
