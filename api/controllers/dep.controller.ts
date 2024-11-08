@@ -1,20 +1,39 @@
 import { CadastroDepRequestModel } from "../models/request.model.ts";
-import ServerCrypt from "../services/server.crypt.ts";
 import Context from "./base/context.ts";
 import Controller from "./base/controller.ts";
+import { UsuarioService } from "./usuario.controller.ts";
 
 class DepService {
 
-    private db: Deno.Kv;
-    private crypt: ServerCrypt;
+    private usuarioService: UsuarioService;
 
     constructor(db: Deno.Kv) {
-        this.db = db;
-        this.crypt = new ServerCrypt();
+        this.usuarioService = new UsuarioService(db);
     }
 
-    cadastrarDep(request: CadastroDepRequestModel): Promise<string | null> {
-        return Promise.resolve("Não pode!");
+    async adicionar(emailResp: string, request: Request): Promise<string | null> {
+        
+        const requestModel = await this.adicionar_ObterRequestModel(request);
+        
+        if(requestModel === null)
+            return "Dados inválidos!";
+
+        const result = await this.usuarioService.cadastrarDependente(emailResp, requestModel);
+        return result;
+
+    }
+
+    private async adicionar_ObterRequestModel(request: Request): Promise<CadastroDepRequestModel | null> {
+        const obj = await request.json();
+        return typeof obj === 'object' &&
+            obj !== null &&
+            typeof obj.nome === 'string' &&
+            typeof obj.email === 'string' &&
+            typeof obj.senha === 'string' &&
+            typeof obj.mesada === 'number' &&
+            obj.mesada > 0 
+            ? obj as CadastroDepRequestModel 
+            : null;
     }
 }
 
@@ -37,9 +56,8 @@ export default class DepController extends Controller<DepService> {
 
         switch (context.request.method) {
             case "PUT": {
-                const request: CadastroDepRequestModel = await context.request.json();
-                const message = await this.service.cadastrarDep(request);
-                return message == null ? context.ok({}) : context.badRequest(message);
+                const result = await this.service.adicionar(context.tokenSub.email, context.request);
+                return result == null ? context.ok({}) : context.badRequest(result);
             }
 
             default: {

@@ -5,8 +5,10 @@ import { PerfilDep, PerfilResp, type ResponsavelDbModel } from "../models/db.mod
 import type { TokenResponseModel, TokenSubject, UsuarioExistenteResponseModel } from "../models/response.model.ts";
 import ServerCrypt from "../services/server.crypt.ts";
 import type { DependenteDbModel, Perfil, UsuarioDbModel } from "../models/db.model.ts";
+import { CadastroDepRequestModel } from "../models/request.model.ts";
+import DateService from "../services/date.service.ts";
 
-class UsuarioService {
+export class UsuarioService {
 
     private db: Deno.Kv;
     private crypt: ServerCrypt;
@@ -50,6 +52,43 @@ class UsuarioService {
         const token = await this.crypt.criarToken(sub);
         return { token: token, message: "Cadastro Ok." };
 
+    }
+
+    async cadastrarDependente(emailResp: string, request: CadastroDepRequestModel): Promise<string | null> {
+
+        const respExistente = await this.usuarioExistente(emailResp);
+        if(!respExistente.usuarioExistente) return "Responsável inexistente!";
+
+        const depExistente = await this.usuarioExistente(request.email);
+        if(depExistente.usuarioExistente) return "Dependente já cadastrado!";
+
+        const senha = await this.crypt!.criptografarSenha(request.senha);
+        const dep: DependenteDbModel = {
+            usuario: {
+                nome: request.nome,
+                senha: senha
+            },
+            responsavel: emailResp,
+            mesadas: [{
+                id: 0,
+                de: DateService.DataHoraLocal(),
+                ate: null,
+                valor: request.mesada
+            }],
+            pagamentos: []
+        };
+
+        const respDb = await this.db.get([PerfilResp, emailResp]);
+        const resp = respDb.value as ResponsavelDbModel;
+        resp.dependentes.push(request.email);
+
+        const result = await this.db.atomic()
+            .check(respDb)
+            .set([PerfilResp, emailResp], resp)
+            .set([PerfilDep, request.email], dep)
+            .commit();
+
+        return result.ok ? null : "Sistema indisponível no momento.";
     }
 
     async login(request: LoginRequestModel): Promise<TokenResponseModel> {

@@ -639,6 +639,7 @@ define("components/cadastro-dep.component", ["require", "exports", "models/const
             this.viewModel.onAdicionar = async (cadastroDep) => {
                 try {
                     await this.service.cadastrar(cadastroDep);
+                    this.dispatchEvent(new Event("voltar"));
                 }
                 catch (error) {
                     console.log("Erro onAdicionar:", error);

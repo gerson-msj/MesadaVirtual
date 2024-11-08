@@ -39,7 +39,7 @@ class CadastroDepService extends Service {
     private api: ApiService = new ApiService("dep");
     
     cadastrar(cadastroDep: CadastroDepRequestModel): Promise<void> {
-        return this.api.doPut<void>(cadastroDep)
+        return this.api.doPut<void>(cadastroDep);
     }
     
 }
@@ -63,6 +63,7 @@ export default class CadastroDepComponent extends Component<CadastroDepViewModel
         this.viewModel.onAdicionar = async (cadastroDep) => {
             try {
                 await this.service.cadastrar(cadastroDep);
+                this.dispatchEvent(new Event("voltar"));
             } catch (error) {
                 console.log("Erro onAdicionar:", error);
                 this.viewModel.ApresentarErro(error);
