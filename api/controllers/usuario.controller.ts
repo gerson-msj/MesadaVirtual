@@ -6,7 +6,6 @@ import type { TokenResponseModel, TokenSubject, UsuarioExistenteResponseModel } 
 import ServerCrypt from "../services/server.crypt.ts";
 import type { DependenteDbModel, Perfil, UsuarioDbModel } from "../models/db.model.ts";
 import { CadastroDepRequestModel } from "../models/request.model.ts";
-import DateService from "../services/date.service.ts";
 
 export class UsuarioService {
 
@@ -71,7 +70,7 @@ export class UsuarioService {
             responsavel: emailResp,
             mesadas: [{
                 id: 0,
-                de: DateService.DataHoraLocal(),
+                de: new Date(),
                 ate: null,
                 valor: request.mesada
             }],
