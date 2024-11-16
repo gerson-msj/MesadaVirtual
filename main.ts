@@ -7,6 +7,7 @@ import PageController from "./api/controllers/page.controller.ts";
 // import AnotacoesController from "./api/controllers/anotacoes.controller.ts";
 import UsuarioController from "./api/controllers/usuario.controller.ts";
 import DepController from "./api/controllers/dep.controller.ts";
+import ResumoController from "./api/controllers/resumo.controller.ts";
 
 const page = Controller.createInstance(PageController);
 
@@ -19,14 +20,14 @@ const handler = async (request: Request): Promise<Response> => {
 
         if(!await context.auth())
             return context.unauthorized();
-
-        // await context.openKv();
         
         const usuario = new UsuarioController();
         const dep = new DepController();
+        const resumo = new ResumoController();
         const controllers = Controller.enlistHandlers(
             usuario,
-            dep
+            dep,
+            resumo
         );
 
         return controllers.handle(context);

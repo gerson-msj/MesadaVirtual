@@ -13,3 +13,11 @@ export interface TokenResponseModel {
 export interface UsuarioExistenteResponseModel {
     usuarioExistente: boolean;
 }
+
+export interface ResumoMesadaResponseModel {
+    dep: string | null;
+    nome: string;
+    acumulado: number;
+    pago: number;
+    saldo: number;
+}
