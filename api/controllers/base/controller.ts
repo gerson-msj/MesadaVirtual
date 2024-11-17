@@ -5,6 +5,7 @@ export default abstract class Controller<TService> {
 
     private next: IController | null = null;
     private _service: TService | null = null;
+    
     protected get service() { return this._service!; }
     protected set service(v: TService) { this._service = v; }
 
